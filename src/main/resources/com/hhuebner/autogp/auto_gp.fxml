@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.canvas.Canvas?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.Menu?>
@@ -10,9 +9,11 @@
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.BorderPane?>
 <?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
 <AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.hhuebner.autogp.controllers.MainSceneController">
@@ -86,9 +87,20 @@
                </children>
             </VBox>
          </left>
-        <center>
-            <fx:include fx:id="canvas" source="canvas.fxml" />
-        </center>
+         <center>
+            <StackPane prefHeight="150.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+               <children>
+                  <fx:include fx:id="canvas" source="canvas.fxml" />
+                  <ToolBar maxHeight="-Infinity" maxWidth="-Infinity" orientation="VERTICAL" prefHeight="106.0" prefWidth="62.0" StackPane.alignment="BOTTOM_RIGHT">
+                    <items>
+                      <Button mnemonicParsing="false" text="Cursor" onAction="#OnClickCursorTool"/>
+                        <Button mnemonicParsing="false" text="Move" onAction="#OnClickMoveTool"/>
+                        <Button mnemonicParsing="false" text="Select" onAction="#OnClickSelectTool"/>
+                    </items>
+                  </ToolBar>
+               </children>
+            </StackPane>
+         </center>
       </BorderPane>
    </children>
 </AnchorPane>

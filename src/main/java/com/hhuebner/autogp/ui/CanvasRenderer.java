@@ -1,6 +1,7 @@
 package com.hhuebner.autogp.ui;
 
 import com.hhuebner.autogp.controllers.CanvasController;
+import com.hhuebner.autogp.core.InputHandler;
 import com.hhuebner.autogp.core.Options;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -11,12 +12,12 @@ import java.util.function.Predicate;
 public class CanvasRenderer {
 
     private final Camera cam;
-
+    private InputHandler inputHandler;
     public CanvasRenderer(Camera cam) {
         this.cam = cam;
     }
 
-    public void render(Canvas canvas, CanvasController canvasController) {
+    public void render(Canvas canvas, InputHandler inputHandler) {
         double w = canvas.getWidth();
         double h = canvas.getHeight();
         GraphicsContext ctx = canvas.getGraphicsContext2D();
@@ -31,8 +32,8 @@ public class CanvasRenderer {
 
         ctx.restore();
 
-        if(canvasController.hasSelection()) {
-            this.drawSelectionBox(ctx, canvasController.getSelection());
+        if(inputHandler.hasSelection()) {
+            this.drawSelectionBox(ctx, inputHandler.getSelection());
         }
     }
 

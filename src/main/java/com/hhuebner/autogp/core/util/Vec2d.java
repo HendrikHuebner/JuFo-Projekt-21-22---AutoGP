@@ -15,18 +15,15 @@ public class Vec2d {
         this.y = vec.y;
     }
 
-    public void add(Vec2d vec) {
-        this.x += vec.x;
-        this.y += vec.y;
+    public Vec2d add(Vec2d vec) {
+        return new Vec2d(this.x + vec.x, this.y + vec.y);
     }
 
-    public void sub(Vec2d vec) {
-        this.x -= vec.x;
-        this.y -= vec.y;
+    public Vec2d sub(Vec2d vec) {
+        return new Vec2d(this.x - vec.x, this.y - vec.y);
     }
 
-    public void scale(double s) {
-        this.x *= s;
-        this.y *= s;
+    public Vec2d scale(double s) {
+        return new Vec2d(this.x * s, this.y * s);
     }
 }

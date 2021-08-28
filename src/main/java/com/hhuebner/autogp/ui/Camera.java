@@ -34,4 +34,8 @@ public class Camera {
     public Affine getTransform() {
         return this.transform;
     }
+
+    public double getZoom() {
+        return this.zoom;
+    }
 }

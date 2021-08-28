@@ -3,6 +3,7 @@ package com.hhuebner.autogp;
 import com.hhuebner.autogp.controllers.CanvasController;
 import com.hhuebner.autogp.controllers.MainSceneController;
 import com.hhuebner.autogp.core.ControllerFactory;
+import com.hhuebner.autogp.core.InputHandler;
 import com.hhuebner.autogp.ui.Camera;
 import com.hhuebner.autogp.ui.CanvasRenderer;
 import javafx.application.Application;
@@ -15,9 +16,10 @@ import javafx.stage.Stage;
 import javafx.util.Callback;
 
 import java.io.IOException;
+import java.util.function.Supplier;
 
 public class AutoGP extends Application {
-
+    private Scene scene = null;
 
     //public static final Logger LOGGER = LogManager.getLogger();
 
@@ -26,23 +28,25 @@ public class AutoGP extends Application {
 
         Camera camera = new Camera();
         CanvasRenderer canvasRenderer = new CanvasRenderer(camera);
+        InputHandler inputHandler = new InputHandler(() -> this.scene);
         ControllerFactory controllerFactory = new ControllerFactory();
-        controllerFactory.registerController(MainSceneController.class, new MainSceneController());
+        controllerFactory.registerController(MainSceneController.class, new MainSceneController(inputHandler));
         CanvasController canvasController = controllerFactory.registerController(CanvasController.class,
-                new CanvasController(canvasRenderer, camera));
+                 new CanvasController(canvasRenderer, camera, inputHandler));
 
         FXMLLoader loader = new FXMLLoader(getClass().getResource("auto_gp.fxml"));
         controllerFactory.setControllers(loader);
 
         Parent root = loader.load();
         Scene main = new Scene(root, 819, 415);
+        this.scene = main;
 
         stage.setTitle("AutoGP");
         stage.setResizable(false);
         stage.setScene(main);
         stage.show();
 
-        canvasRenderer.render(canvasController.canvas, canvasController);
+        canvasRenderer.render(canvasController.canvas, inputHandler);
     }
 
     public static void main(String[] args) {
