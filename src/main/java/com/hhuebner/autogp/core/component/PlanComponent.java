@@ -1,12 +1,13 @@
 package com.hhuebner.autogp.core.component;
 
 import com.hhuebner.autogp.core.engine.BoundingBox;
+import javafx.scene.canvas.GraphicsContext;
 
 public abstract class PlanComponent {
 
-    private final BoundingBox bb;
-    private final String name;
-    private final long id;
+    protected final BoundingBox bb;
+    protected final String name;
+    protected final long id;
 
     public PlanComponent(BoundingBox bb, String name, long id) {
         this.bb = bb;
@@ -18,5 +19,5 @@ public abstract class PlanComponent {
         return this.bb;
     }
 
-    public abstract void render();
+    public abstract void render(GraphicsContext ctx);
 }

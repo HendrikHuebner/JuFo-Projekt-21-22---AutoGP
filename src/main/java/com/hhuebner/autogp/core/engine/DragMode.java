@@ -1,8 +1,9 @@
 package com.hhuebner.autogp.core.engine;
 
-public enum Direction {
+public enum DragMode {
     NORTH,
     EAST,
     SOUTH,
-    WEST;
+    WEST,
+    MOVE;
 }

@@ -1,23 +1,31 @@
 package com.hhuebner.autogp.ui;
 
-import com.hhuebner.autogp.controllers.CanvasController;
 import com.hhuebner.autogp.core.InputHandler;
 import com.hhuebner.autogp.core.Options;
+import com.hhuebner.autogp.core.component.InteractableComponent;
+import com.hhuebner.autogp.core.component.PlanComponent;
+import com.hhuebner.autogp.core.engine.GPEngine;
+import javafx.animation.AnimationTimer;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
-import java.util.function.Predicate;
-
-public class CanvasRenderer {
+public class CanvasRenderer extends AnimationTimer {
 
     private final Camera cam;
-    private InputHandler inputHandler;
-    public CanvasRenderer(Camera cam) {
+    private final GPEngine engine;
+    private final Canvas canvas;
+    private final InputHandler inputHandler;
+
+    public CanvasRenderer(Canvas canvas, InputHandler inputHandler, GPEngine engine, Camera cam) {
+        this.canvas = canvas;
+        this.inputHandler = inputHandler;
+        this.engine = engine;
         this.cam = cam;
     }
 
-    public void render(Canvas canvas, InputHandler inputHandler) {
+    @Override
+    public void handle(long time) {
         double w = canvas.getWidth();
         double h = canvas.getHeight();
         GraphicsContext ctx = canvas.getGraphicsContext2D();
@@ -29,6 +37,16 @@ public class CanvasRenderer {
         if(Options.showGrid) {
             drawGrid(ctx, w, h);
         }
+
+        for(PlanComponent component : engine.getComponents()) {
+            component.render(ctx);
+        }
+
+        this.inputHandler.getSelectedComponent().ifPresent(component -> {
+           if(component instanceof InteractableComponent) {
+               ((InteractableComponent)component).renderInteractionBox(ctx, this.cam);
+           }
+        });
 
         ctx.restore();
 
@@ -60,7 +78,7 @@ public class CanvasRenderer {
 
         ctx.save();
         ctx.setStroke(Color.GRAY);
-        ctx.setLineWidth(1.0);
+        ctx.setLineWidth(1.0/this.cam.getScaleX());
 
         for(int i = 0; i < cellCountX; i++) {
             ctx.strokeLine(i * cellsize + offsetX, offsetY, i * cellsize + offsetX,
