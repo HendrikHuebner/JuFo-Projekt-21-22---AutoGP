@@ -1,6 +1,6 @@
 package com.hhuebner.autogp.ui;
 
-import com.hhuebner.autogp.core.util.Vec2d;
+import javafx.geometry.Point2D;
 import javafx.scene.transform.Affine;
 
 public class Camera {
@@ -11,13 +11,13 @@ public class Camera {
         this.transform = new Affine();
     }
 
-    public void move(Vec2d vec) {
-        this.transform.prependTranslation(vec.x, vec.y);
+    public void move(Point2D p) {
+        this.transform.appendTranslation(p.getX(), p.getY());
     }
 
-    public void setPos(Vec2d vec) {
-        this.transform.setTx(vec.x * getScaleX());
-        this.transform.setTy(vec.y * getScaleY());
+    public void setPos(Point2D p) {
+        this.transform.setTx(p.getX() * getScaleX());
+        this.transform.setTy(p.getY() * getScaleY());
     }
 
     /**

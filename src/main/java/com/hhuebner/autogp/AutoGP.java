@@ -54,9 +54,9 @@ public class AutoGP extends Application {
 
     //LOGGER
     public static void log(Object... params) {
-        String s = "";
+        StringBuilder s = new StringBuilder();
         for(Object o : params)
-            s += o.toString() + " ";
+            s.append(o.toString()).append(" ");
 
         System.out.println(s);
     }

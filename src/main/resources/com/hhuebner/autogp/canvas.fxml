@@ -1,20 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import java.util.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-
 <?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
 <AnchorPane xmlns="http://javafx.com/javafx"
             xmlns:fx="http://javafx.com/fxml"
             fx:controller="com.hhuebner.autogp.controllers.CanvasController"
             prefHeight="400.0" prefWidth="600.0">
 
     <Canvas fx:id="canvas" height="390.0"
-            onMouseDragged="#OnCanvasMouseDrag"
-            onMouseReleased="#OnCanvasMouseReleased"
-            onMousePressed="#OnCanvasMousePressed"
-            onScroll="#OnCanvasScroll" width="546.0" BorderPane.alignment="CENTER" />
+            onMouseDragged="#onCanvasMouseDrag"
+            onMouseReleased="#onCanvasMouseReleased"
+            onMousePressed="#onCanvasMousePressed"
+            onScroll="#onCanvasScroll" width="546.0" BorderPane.alignment="CENTER" />
 </AnchorPane>

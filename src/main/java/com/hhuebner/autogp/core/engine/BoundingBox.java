@@ -22,4 +22,11 @@ public class BoundingBox {
     public boolean containsPoint(double x, double y) {
         return this.y <= y && this.y2 >= y && this.x <= x && this.x2 >= x;
     }
+
+    public void move(double dx, double dy) {
+        this.x += dx;
+        this.y += dy;
+        this.x2 += dx;
+        this.y2 += dy;
+    }
 }
