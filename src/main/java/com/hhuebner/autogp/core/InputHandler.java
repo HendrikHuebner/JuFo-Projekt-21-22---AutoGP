@@ -5,6 +5,7 @@ import com.hhuebner.autogp.core.component.PlanComponent;
 import com.hhuebner.autogp.core.engine.BoundingBox;
 import com.hhuebner.autogp.core.engine.DragMode;
 import com.hhuebner.autogp.core.engine.GPEngine;
+import com.hhuebner.autogp.core.util.Pair;
 import com.hhuebner.autogp.core.util.Unit;
 import javafx.geometry.Point2D;
 import javafx.scene.Scene;
@@ -18,7 +19,7 @@ public class InputHandler {
     private final Supplier<Scene> scene;
     public Optional<Point2D> dragStart = Optional.empty();
     public Optional<Point2D> dragEnd = Optional.empty();
-    public Unit scalingUnit = Unit.METRES;
+    public Pair<Unit, Unit> scalingUnit = new Pair(Unit.METRES, Unit.METRES);
     private Tool tool = Tool.MOVE;
     private Optional<PlanComponent> selected = Optional.empty();
     private Optional<DragMode> selectedDragMode = Optional.empty();
@@ -27,6 +28,10 @@ public class InputHandler {
     public InputHandler(Supplier<Scene> scene, GPEngine engine) {
         this.scene = scene;
         this.engine = engine;
+    }
+
+    public double calcMeasuredDistance(double cells) {
+        return cells * this.globalScale * this.scalingUnit.first.factor / this.scalingUnit.second.factor;
     }
 
     public void setTool(Tool tool) {

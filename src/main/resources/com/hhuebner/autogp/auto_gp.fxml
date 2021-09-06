@@ -33,9 +33,11 @@
                <children>
                   <HBox prefHeight="7.0" prefWidth="176.0">
                      <children>
-                        <Label prefHeight="17.0" prefWidth="132.0" text="Scale:" />
-                        <TextField onKeyTyped="#onSetScale" prefHeight="25.0" prefWidth="196.0" />
-                        <ChoiceBox prefHeight="25.0" prefWidth="49.0" fx:id="choiceBox" onAction="#onSetUnit" />
+                        <Label prefHeight="17.0" prefWidth="65.0" text="Scale:" />
+                        <TextField onKeyTyped="#onSetScale" prefHeight="25.0" prefWidth="73.0" />
+                        <ChoiceBox fx:id="inputUnitChoice" prefHeight="25.0" prefWidth="49.0" />
+                        <Label prefHeight="17.0" prefWidth="132.0" text="     Ausgabe Einheit:" />
+                        <ChoiceBox fx:id="outputUnitChoice" prefHeight="25.0" prefWidth="49.0" />
                      </children>
                   </HBox>
                   <HBox alignment="CENTER_LEFT" prefHeight="35.0" prefWidth="273.0">

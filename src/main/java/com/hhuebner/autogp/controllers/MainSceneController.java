@@ -16,9 +16,9 @@ public class MainSceneController {
     @FXML
     public CanvasController canvasController;
     @FXML
-    public ChoiceBox<Unit> choiceBox;
+    public ChoiceBox<Unit> inputUnitChoice;
     @FXML
-    public ChoiceBox<Unit> choiceBox2;
+    public ChoiceBox<Unit> outputUnitChoice;
     private final InputHandler inputHandler;
 
     public MainSceneController(InputHandler inputHandler) {
@@ -28,10 +28,14 @@ public class MainSceneController {
     @FXML
     public void initialize() {
         ObservableList<Unit> items = FXCollections.observableArrayList(Unit.values());
-        choiceBox.setItems(items);
-        choiceBox2.setItems(items);
-        choiceBox.setValue(Unit.METRES);
-        choiceBox2.setValue(Unit.METRES);
+        inputUnitChoice.setItems(items);
+        outputUnitChoice.setItems(items);
+
+        inputUnitChoice.setValue(Unit.METRES);
+        outputUnitChoice.setValue(Unit.METRES);
+
+        inputUnitChoice.setOnAction((event) ->  this.inputHandler.scalingUnit.first = inputUnitChoice.getValue());
+        outputUnitChoice.setOnAction((event) ->  this.inputHandler.scalingUnit.second = outputUnitChoice.getValue());
     }
 
     @FXML
@@ -49,11 +53,6 @@ public class MainSceneController {
         finally {
             this.inputHandler.globalScale = value;
         }
-    }
-
-    @FXML
-    public void onSetUnit(ActionEvent event) {
-        this.inputHandler.scalingUnit = choiceBox.getValue();
     }
 
     @FXML

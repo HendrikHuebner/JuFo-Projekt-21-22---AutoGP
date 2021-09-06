@@ -8,6 +8,8 @@ import java.util.List;
 
 public class GPEngine {
 
+    public static final int CELL_SIZE = 30;
+
     private List<PlanComponent> components = new ArrayList<>(); //TODO (MAYBE): Quadtree optimization
 
     public GPEngine() {
