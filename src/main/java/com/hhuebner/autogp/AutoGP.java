@@ -14,30 +14,38 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.net.URISyntaxException;
 
 public class AutoGP extends Application {
-    private Scene scene = null;
+    private Scene mainScene = null;
+    private Scene roomEditorScene = null;
 
-    //public static final Logger LOGGER = LogManager.getLogger();
 
     @Override
-    public void start(Stage stage) throws IOException {
-
+    public void start(Stage stage) throws IOException, URISyntaxException { //TODO: FIX THIS SHITTY CODE
         Camera camera = new Camera();
         GPEngine engine = new GPEngine();
-        InputHandler inputHandler = new InputHandler(() -> this.scene, engine);
+        InputHandler inputHandler = new InputHandler(() -> this.mainScene, engine);
+        ControllerFactory mainCF = new ControllerFactory();
 
-        ControllerFactory controllerFactory = new ControllerFactory();
-        controllerFactory.registerController(MainSceneController.class, new MainSceneController(inputHandler));
-        CanvasController canvasController = controllerFactory.registerController(CanvasController.class,
-                 new CanvasController(camera, inputHandler, engine));
+        mainCF.registerController(MainSceneController.class, new MainSceneController(inputHandler, () -> this.roomEditorScene));
+        CanvasController canvasController = mainCF.registerController(CanvasController.class,
+                new CanvasController(camera, inputHandler, engine));
 
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("auto_gp.fxml"));
-        controllerFactory.setControllers(loader);
+        FXMLLoader mainLoader = new FXMLLoader(getClass().getResource("auto_gp.fxml"));
+        mainCF.setControllers(mainLoader);
 
-        Parent root = loader.load();
-        Scene main = new Scene(root, 819, 415);
-        this.scene = main;
+        ControllerFactory roomEditorCF = new ControllerFactory();
+        FXMLLoader roomEditorLoader = new FXMLLoader(getClass().getResource("room_editor.fxml"));
+        roomEditorCF.setControllers(roomEditorLoader);
+
+        Parent mainRoot = mainLoader.load();
+        Scene main = new Scene(mainRoot, 819, 415);
+        this.mainScene = main;
+
+        Parent roomEditorRoot = roomEditorLoader.load();
+        Scene roomEditor = new Scene(roomEditorRoot, 340, 377);
+        this.roomEditorScene = roomEditor;
 
         stage.setTitle("AutoGP");
         stage.setResizable(false);
@@ -55,6 +63,14 @@ public class AutoGP extends Application {
     //LOGGER
     public static void log(Object... params) {
         StringBuilder s = new StringBuilder();
+        for(Object o : params)
+            s.append(o.toString()).append(" ");
+
+        System.out.println(s);
+    }
+
+    public static void warn(Object... params) {
+        StringBuilder s = new StringBuilder("\\u001B[33m");
         for(Object o : params)
             s.append(o.toString()).append(" ");
 

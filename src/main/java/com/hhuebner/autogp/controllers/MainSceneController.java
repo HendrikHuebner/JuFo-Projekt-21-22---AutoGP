@@ -6,13 +6,20 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.Scene;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
+import javafx.stage.StageStyle;
+
+import java.util.function.Supplier;
 
 
 public class MainSceneController {
 
+    private final Supplier<Scene> roomEditorScene;
     @FXML
     public CanvasController canvasController;
     @FXML
@@ -21,8 +28,9 @@ public class MainSceneController {
     public ChoiceBox<Unit> outputUnitChoice;
     private final InputHandler inputHandler;
 
-    public MainSceneController(InputHandler inputHandler) {
+    public MainSceneController(InputHandler inputHandler, Supplier<Scene> roomEditorScene) {
         this.inputHandler = inputHandler;
+        this.roomEditorScene = roomEditorScene;
     }
 
     @FXML
@@ -36,6 +44,15 @@ public class MainSceneController {
 
         inputUnitChoice.setOnAction((event) ->  this.inputHandler.scalingUnit.first = inputUnitChoice.getValue());
         outputUnitChoice.setOnAction((event) ->  this.inputHandler.scalingUnit.second = outputUnitChoice.getValue());
+    }
+
+    @FXML
+    public void onAddRoom(ActionEvent event) {
+        Stage dialog = new Stage(StageStyle.UTILITY);
+        dialog.initModality(Modality.APPLICATION_MODAL);
+        //dialog.initOwner(parent);
+        dialog.setScene(this.roomEditorScene.get());
+        dialog.showAndWait();
     }
 
     @FXML

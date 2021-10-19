@@ -45,7 +45,7 @@
                         <Label prefHeight="26.0" prefWidth="50.0" text="Rooms:" />
                         <HBox alignment="CENTER_RIGHT" prefHeight="35.0" prefWidth="222.0">
                            <children>
-                              <Button mnemonicParsing="false" styleClass="agp-button" stylesheets="@style.css" text="+" />
+                              <Button mnemonicParsing="false" onAction="#onAddRoom" styleClass="agp-button" stylesheets="@style.css" text="+" />
                            </children>
                         </HBox>
                      </children>

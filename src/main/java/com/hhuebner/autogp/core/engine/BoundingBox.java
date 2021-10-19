@@ -29,4 +29,12 @@ public class BoundingBox {
         this.x2 += dx;
         this.y2 += dy;
     }
+
+    public double getWidth() {
+        return this.x2 - this.x;
+    }
+
+    public double getHeight() {
+        return this.y2 - this.y;
+    }
 }

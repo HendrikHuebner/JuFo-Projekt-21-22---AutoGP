@@ -9,9 +9,11 @@ import javafx.scene.paint.Color;
 public abstract class InteractableComponent extends PlanComponent {
 
     public boolean locked = false;
+    protected BoundingBox bb;
 
     public InteractableComponent(BoundingBox bb, String name, long id) {
-        super(bb, name, id);
+        super(name, id);
+        this.bb = bb;
     }
 
     public void moveBound(DragMode dragMode, double dist) {
@@ -23,18 +25,22 @@ public abstract class InteractableComponent extends PlanComponent {
         }
     }
 
+    public BoundingBox getBoundingBox() {
+        return this.bb;
+    }
+
     public void renderSelectionOutline(GraphicsContext ctx, Camera cam) {
         ctx.save();
         ctx.setStroke(Color.BLACK);
         ctx.setLineWidth(1.0/cam.getScaleX());
-        ctx.strokeRect(this.bb.x, this.bb.y, this.bb.x2 - this.bb.x, this.bb.y2 - this.bb.y);
+        ctx.strokeRect(this.bb.x, this.bb.y, this.bb.getWidth(), this.bb.getHeight());
         ctx.restore();
     }
 
     public void renderInteractionBox(GraphicsContext ctx, Camera cam) {
         double boxSize = 10.0/cam.getScaleX();
-        double width = this.bb.x2 - this.bb.x;
-        double height = this.bb.y2 - this.bb.y;
+        double width = this.bb.getWidth();
+        double height = this.bb.getHeight();
 
         ctx.save();
         ctx.setStroke(Color.BLACK);

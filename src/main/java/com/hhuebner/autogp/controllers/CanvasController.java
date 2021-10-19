@@ -8,6 +8,7 @@ import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
+import javafx.scene.transform.Affine;
 import javafx.scene.transform.NonInvertibleTransformException;
 
 import java.util.Optional;
@@ -39,13 +40,16 @@ public class CanvasController {
     }
 
     @FXML
-    public void onCanvasMouseReleased(MouseEvent event) {
+    public void onCanvasMouseReleased(MouseEvent event) throws NonInvertibleTransformException {
         if (this.inputHandler.getTool() == InputHandler.Tool.SELECTION) {
             inputHandler.dragEnd = Optional.of(new Point2D(event.getX(), event.getY()));
-            inputHandler.handleSelection();
+
+            Point2D startAbs = this.cam.getTransform().inverseTransform(inputHandler.dragStart.get());
+            Point2D endAbs = this.cam.getTransform().inverseTransform(inputHandler.dragEnd.get());
+            inputHandler.handleSelection(startAbs.getX(), startAbs.getY(), endAbs.getX(), endAbs.getY());
             inputHandler.clearSelection();
         }
-    }
+     }
 
     @FXML
     public void onCanvasMouseDrag(MouseEvent event) throws NonInvertibleTransformException {
@@ -71,9 +75,11 @@ public class CanvasController {
         //remove selection box
         inputHandler.clearSelection();
 
-        double multiplier = event.getDeltaY() / 1000.0;
+        double multiplier = 1 + event.getDeltaY() / 1000.0; //event.getDeltaY() = mousewheel scroll
 
-        this.cam.zoom(1 + multiplier);
-        this.cam.move(new Point2D(-event.getX() * multiplier, -event.getY() * multiplier));
+        Affine affine = this.cam.getTransform();
+        affine.prependTranslation(-event.getX(), -event.getY());
+        affine.prependScale(multiplier, multiplier);
+        affine.prependTranslation(event.getX(), event.getY());
     }
 }

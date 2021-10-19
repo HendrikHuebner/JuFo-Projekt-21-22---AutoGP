@@ -1,6 +1,7 @@
 package com.hhuebner.autogp.core;
 
 import com.hhuebner.autogp.AutoGP;
+import com.hhuebner.autogp.core.component.InteractableComponent;
 import com.hhuebner.autogp.core.component.PlanComponent;
 import com.hhuebner.autogp.core.engine.BoundingBox;
 import com.hhuebner.autogp.core.engine.DragMode;
@@ -21,7 +22,7 @@ public class InputHandler {
     public Optional<Point2D> dragEnd = Optional.empty();
     public Pair<Unit, Unit> scalingUnit = new Pair(Unit.METRES, Unit.METRES);
     private Tool tool = Tool.MOVE;
-    private Optional<PlanComponent> selected = Optional.empty();
+    private Optional<InteractableComponent> selected = Optional.empty();
     private Optional<DragMode> selectedDragMode = Optional.empty();
     public double globalScale = 1.0;
 
@@ -52,8 +53,8 @@ public class InputHandler {
         //Check if a resize box has been clicked
         if(this.selected.isPresent()) {
             BoundingBox bb = this.selected.get().getBoundingBox();
-            double w = (bb.x2 - bb.x) / 2; //half width of bb
-            double h = (bb.y2 - bb.y) / 2; //half height of bb
+            double w = bb.getWidth() / 2; //half width of bb
+            double h = bb.getHeight() / 2; //half height of bb
             final double o = 12; //half of the side length of the clickable box
             
             if(new BoundingBox(bb.x + w - o, bb.y - o, bb.x + w + o, bb.y + o)
@@ -72,21 +73,25 @@ public class InputHandler {
         }
         
         for(PlanComponent component : this.engine.getComponents()) {
-            if(component.getBoundingBox().containsPoint(mouseXAbsolute, mouseYAbsolute)) {
-                if(this.selected.isPresent() && this.selected.get().equals(component)) {
-                    //if selected component was clicked again, set drag mode to MOVE
-                    this.selectedDragMode = Optional.of(DragMode.MOVE);
+            if(component instanceof InteractableComponent) {
+                if (((InteractableComponent)component).getBoundingBox().containsPoint(mouseXAbsolute, mouseYAbsolute)) {
+
+                    if (this.selected.isPresent() && this.selected.get().equals(component)) {
+                        //if selected component was clicked again, set drag mode to MOVE
+                        this.selectedDragMode = Optional.of(DragMode.MOVE);
+
+                    } else
+                        this.selected = Optional.of((InteractableComponent) component);
                 } else
-                    this.selected = Optional.of(component);
-            } else
-                this.selected = Optional.empty();
+                    this.selected = Optional.empty();
+            }
         }
     }
 
     public void handleCursorDrag(double startX, double startY, double currentX, double currentY) {
         if(this.selected.isPresent() && this.selectedDragMode.isPresent()) {
             DragMode dragMode = this.selectedDragMode.get();
-            PlanComponent component = this.selected.get();
+            InteractableComponent component = this.selected.get();
             double dx = currentX - startX;
             double dy = currentY - startY;
 
@@ -100,7 +105,7 @@ public class InputHandler {
         }
     }
 
-    public Optional<PlanComponent> getSelectedComponent() {
+    public Optional<InteractableComponent> getSelectedComponent() {
         return this.selected;
     }
 
@@ -110,7 +115,10 @@ public class InputHandler {
         return this.dragStart.isPresent() && this.dragEnd.isPresent();
     }
 
-    public void handleSelection() {
+    /**
+     * Called when the selection box is released
+     */
+    public void handleSelection(double x1, double y1, double x2, double y2) {
     }
 
     public void clearSelection() {

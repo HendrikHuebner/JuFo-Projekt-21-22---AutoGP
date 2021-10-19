@@ -59,7 +59,7 @@ public class CanvasRenderer extends AnimationTimer {
             }
 
             if(this.inputHandler.getTool() == InputHandler.Tool.RULER)
-                this.drawMeasurements(ctx, component);
+                this.drawMeasurements(ctx, (InteractableComponent)component);
         }
 
         ctx.restore();
@@ -69,7 +69,7 @@ public class CanvasRenderer extends AnimationTimer {
         }
     }
 
-    private void drawMeasurements(GraphicsContext ctx, PlanComponent component) {
+    private void drawMeasurements(GraphicsContext ctx, InteractableComponent component) {
         BoundingBox bb = component.getBoundingBox();
         final int textOffset = 6;
 
@@ -88,13 +88,13 @@ public class CanvasRenderer extends AnimationTimer {
         ctx.setTextAlign(TextAlignment.CENTER);
         ctx.setTextBaseline(VPos.TOP);
 
-        ctx.fillText(String.format("%.2f%s", this.inputHandler.calcMeasuredDistance(bb.x2 - bb.x) / CELL_SIZE,
+        ctx.fillText(String.format("%.2f%s", this.inputHandler.calcMeasuredDistance(bb.getWidth()) / CELL_SIZE,
                 this.inputHandler.scalingUnit.second.name),bb.x / 2 + bb.x2 / 2, this.canvas.getHeight() + textOffset);
 
         ctx.setTextAlign(TextAlignment.RIGHT);
         ctx.setTextBaseline(VPos.CENTER);
 
-        ctx.fillText(String.format("%.2f%s", this.inputHandler.calcMeasuredDistance(bb.y2 - bb.y) / CELL_SIZE,
+        ctx.fillText(String.format("%.2f%s", this.inputHandler.calcMeasuredDistance(bb.getHeight()) / CELL_SIZE,
                         this.inputHandler.scalingUnit.second.name), -textOffset, bb.y / 2 + bb.y2 / 2);
 
         ctx.restore();

@@ -1,7 +1,8 @@
 package com.hhuebner.autogp.core.engine;
 
-import com.hhuebner.autogp.core.component.ImageComponent;
+import com.hhuebner.autogp.core.component.FurnitureComponent;
 import com.hhuebner.autogp.core.component.PlanComponent;
+import com.hhuebner.autogp.core.component.furniture.FurnitureItems;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,8 +14,7 @@ public class GPEngine {
     private List<PlanComponent> components = new ArrayList<>(); //TODO (MAYBE): Quadtree optimization
 
     public GPEngine() {
-        //DEBUG
-        this.components.add(new ImageComponent(new BoundingBox(100, 100, 200, 300), "testbox", "", 0l));
+        this.components.add(new FurnitureComponent(new BoundingBox(100, 200, 300, 400), FurnitureItems.TOILET, 1l));
     }
 
     public List<PlanComponent> getComponents() {
