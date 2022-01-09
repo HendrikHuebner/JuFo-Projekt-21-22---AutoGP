@@ -1,6 +1,5 @@
 package com.hhuebner.autogp.core;
 
-import com.hhuebner.autogp.AutoGP;
 import com.hhuebner.autogp.core.component.InteractableComponent;
 import com.hhuebner.autogp.core.component.PlanComponent;
 import com.hhuebner.autogp.core.engine.BoundingBox;
@@ -31,10 +30,6 @@ public class InputHandler {
         this.engine = engine;
     }
 
-    public double calcMeasuredDistance(double cells) {
-        return cells * this.globalScale * this.scalingUnit.first.factor / this.scalingUnit.second.factor;
-    }
-
     public void setTool(Tool tool) {
         this.tool = tool;
         this.dragStart = Optional.empty();
@@ -48,8 +43,6 @@ public class InputHandler {
     // ***** Cursor tool *****
 
     public void onCursorClick(double mouseXAbsolute, double mouseYAbsolute) {
-        AutoGP.log("selected:", this.selectedDragMode);
-
         //Check if a resize box has been clicked
         if(this.selected.isPresent()) {
             BoundingBox bb = this.selected.get().getBoundingBox();

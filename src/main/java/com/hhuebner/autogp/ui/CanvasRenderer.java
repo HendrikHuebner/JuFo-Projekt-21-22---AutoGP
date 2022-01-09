@@ -6,6 +6,8 @@ import com.hhuebner.autogp.core.component.InteractableComponent;
 import com.hhuebner.autogp.core.component.PlanComponent;
 import com.hhuebner.autogp.core.engine.BoundingBox;
 import com.hhuebner.autogp.core.engine.GPEngine;
+import com.hhuebner.autogp.core.engine.Room;
+import com.hhuebner.autogp.core.util.Utility;
 import javafx.animation.AnimationTimer;
 import javafx.geometry.VPos;
 import javafx.scene.canvas.Canvas;
@@ -49,6 +51,11 @@ public class CanvasRenderer extends AnimationTimer {
             component.render(ctx);
         }
 
+        //TODO: move wall rendering to components
+        for(Room r : this.engine.getGraph()) {
+            r.render(ctx, inputHandler);
+        }
+
         if(inputHandler.getSelectedComponent().isPresent()) {
             PlanComponent component = inputHandler.getSelectedComponent().get();
             if(component instanceof InteractableComponent) {
@@ -64,11 +71,14 @@ public class CanvasRenderer extends AnimationTimer {
 
         ctx.restore();
 
+        drawGridNumbers(ctx);
+
         if(inputHandler.getTool() == InputHandler.Tool.SELECTION && inputHandler.hasSelection()) {
             this.drawSelectionBox(ctx, inputHandler.getSelection());
         }
     }
 
+    @Deprecated
     private void drawMeasurements(GraphicsContext ctx, InteractableComponent component) {
         BoundingBox bb = component.getBoundingBox();
         final int textOffset = 6;
@@ -88,18 +98,19 @@ public class CanvasRenderer extends AnimationTimer {
         ctx.setTextAlign(TextAlignment.CENTER);
         ctx.setTextBaseline(VPos.TOP);
 
-        ctx.fillText(String.format("%.2f%s", this.inputHandler.calcMeasuredDistance(bb.getWidth()) / CELL_SIZE,
+        ctx.fillText(String.format("%.2f%s", Utility.pixelsToUnit(bb.getWidth(), this.inputHandler) / CELL_SIZE,
                 this.inputHandler.scalingUnit.second.name),bb.x / 2 + bb.x2 / 2, this.canvas.getHeight() + textOffset);
 
         ctx.setTextAlign(TextAlignment.RIGHT);
         ctx.setTextBaseline(VPos.CENTER);
 
-        ctx.fillText(String.format("%.2f%s", this.inputHandler.calcMeasuredDistance(bb.getHeight()) / CELL_SIZE,
+        ctx.fillText(String.format("%.2f%s", Utility.pixelsToUnit(bb.getHeight(), this.inputHandler) / CELL_SIZE,
                         this.inputHandler.scalingUnit.second.name), -textOffset, bb.y / 2 + bb.y2 / 2);
 
         ctx.restore();
     }
 
+    @Deprecated
     private void drawSelectionBox(GraphicsContext ctx, double[] selection) {
         ctx.save();
         ctx.setStroke(Color.DARKBLUE);
@@ -114,11 +125,41 @@ public class CanvasRenderer extends AnimationTimer {
         ctx.restore();
     }
 
+    public void drawGridNumbers(GraphicsContext ctx) {
+        ctx.save();
+        ctx.setFill(Color.GRAY);
+
+        final int cellCountX = (int) (canvas.getWidth() / this.cam.getScaleX() / CELL_SIZE) + 3;
+        final int cellCountY = (int) (canvas.getHeight() / this.cam.getScaleY() / CELL_SIZE) + 3;
+        double startX = -this.cam.getX() + this.cam.getX() % CELL_SIZE;
+        double startY = -this.cam.getY() + this.cam.getY() % CELL_SIZE;
+
+        ctx.setTextBaseline(VPos.CENTER);
+        ctx.setTextAlign(TextAlignment.RIGHT);
+
+        for(int i = 0; i < cellCountX; i++) {
+            ctx.fillText(String.format("%.1f", Utility.pixelsToUnit(startX/CELL_SIZE + i, this.inputHandler)),
+                    (this.cam.getX() % CELL_SIZE + i * CELL_SIZE) * cam.getScaleX(), canvas.getHeight() - 10);
+        }
+
+        ctx.setTextBaseline(VPos.CENTER);
+        ctx.setTextAlign(TextAlignment.CENTER);
+
+        for(int i = 0; i < cellCountY; i++) {
+            ctx.fillText(String.format("%.1f", Utility.pixelsToUnit(startY/CELL_SIZE + i, this.inputHandler)), 10,
+                    (this.cam.getY() % CELL_SIZE + i * CELL_SIZE) * cam.getScaleY());
+        }
+
+        ctx.restore();
+    }
+
     public void drawGrid(GraphicsContext ctx) {
-        final int cellCountX = (int) (canvas.getWidth() / (CELL_SIZE + 1));
-        final int cellCountY = (int) (canvas.getWidth() / (CELL_SIZE + 1));
-        double offsetX = canvas.getWidth() - cellCountX * CELL_SIZE;
-        double offsetY = canvas.getHeight() - cellCountY * CELL_SIZE;
+        final int cellCountX = (int) (canvas.getWidth() / this.cam.getScaleX() / CELL_SIZE) + 3;
+        final int cellCountY = (int) (canvas.getHeight() / this.cam.getScaleY() / CELL_SIZE) + 3;
+        double lengthX = canvas.getWidth() / this.cam.getScaleX() + 2 * CELL_SIZE;
+        double lengthY = canvas.getHeight() / this.cam.getScaleY() +  2 * CELL_SIZE;
+        double startX = -this.cam.getX() + this.cam.getX() % CELL_SIZE - CELL_SIZE;
+        double startY = -this.cam.getY() + this.cam.getY() % CELL_SIZE - CELL_SIZE;
 
         ctx.save();
         ctx.setStroke(Color.GRAY);
@@ -127,33 +168,27 @@ public class CanvasRenderer extends AnimationTimer {
         ctx.setLineWidth(1.0/this.cam.getScaleX());
         ctx.setFont(new Font("Arial", 9));
 
-        //GRID AND NUMBERS
-        for(int j = 0; j < cellCountY; j++) {
-            //HORIZONTAL LINES
-            ctx.strokeLine(offsetX, j * CELL_SIZE + offsetY,
-                    cellCountX * CELL_SIZE + offsetX - CELL_SIZE, j * CELL_SIZE + offsetY);
-            ctx.fillText(String.format("%.1f%s", this.inputHandler.calcMeasuredDistance(cellCountY - j - 1),
-                            this.inputHandler.scalingUnit.second.name), offsetX - textAxisDist, j * CELL_SIZE + offsetY);
-
-        }
-
-        ctx.setTextBaseline(VPos.TOP);
-        ctx.setTextAlign(TextAlignment.CENTER);
-
+        //Thick lines and measurements
         for(int i = 0; i < cellCountX; i++) {
-            //VERTICAL LINES
-            ctx.strokeLine(i * CELL_SIZE + offsetX, offsetY, i * CELL_SIZE + offsetX,
-                    cellCountY * CELL_SIZE - CELL_SIZE + offsetY);
-            ctx.fillText(String.format("%.1f%s", this.inputHandler.calcMeasuredDistance(i), this.inputHandler.scalingUnit.second.name),
-                    i * CELL_SIZE + offsetX, cellCountY * CELL_SIZE - CELL_SIZE + offsetY + textAxisDist);
+            ctx.strokeLine(startX + i * CELL_SIZE, startY, startX + i * CELL_SIZE, startY + lengthY);
+        }
+        for(int i = 0; i < cellCountY; i++) {
+            ctx.strokeLine(startX, startY + i * CELL_SIZE, startX + lengthX, startY  + i * CELL_SIZE);
         }
 
-        //AXES
-        ctx.setStroke(Color.BLACK);
-        ctx.strokeLine(offsetX, offsetY, offsetX, cellCountY * CELL_SIZE - CELL_SIZE + offsetY);
-        ctx.strokeLine(offsetX, (cellCountY - 1) * CELL_SIZE + offsetY,
-                cellCountX * CELL_SIZE + offsetX - CELL_SIZE, (cellCountY - 1) * CELL_SIZE + offsetY);
-
+        ctx.setStroke(Color.LIGHTGRAY);
+        for(int i = 0; i < cellCountX; i++) {
+            for (int j = 1; j < 5; j++) {
+                double x = startX + i * CELL_SIZE + j * CELL_SIZE / 5;
+                ctx.strokeLine(x, startY, x, startY + lengthY);
+            }
+        }
+        for(int i = 0; i < cellCountY; i++) {
+            for (int j = 1; j < 5; j++) {
+                double y = startY + i * CELL_SIZE + j * CELL_SIZE / 5;
+                ctx.strokeLine(startX, y, startX + lengthX, y);
+            }
+        }
         ctx.restore();
     }
 }

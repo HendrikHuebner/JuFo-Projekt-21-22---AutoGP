@@ -2,6 +2,8 @@ package com.hhuebner.autogp.core.engine;
 
 public class BoundingBox {
 
+    public static final BoundingBox EMPTY = new BoundingBox(0, 0, 0, 0);
+
     public double x;
     public double y;
     public double x2;
@@ -14,9 +16,27 @@ public class BoundingBox {
         this.y2 = y2;
     }
 
+    public BoundingBox(BoundingBox bb) {
+        this.x = bb.x;
+        this.y = bb.y;
+        this.x2 = bb.x2;
+        this.y2 = bb.y2;
+    }
+
     public boolean intersects(BoundingBox bb) {
-        return (this.x >= bb.x && this.x <= bb.x2 || bb.x >= this.x && bb.x <= this.x2) &&
-                (this.y >= bb.y && this.y <= bb.y2 || bb.y >= this.y && bb.y <= this.y2);
+        //check for intersection
+        return ((this.x > bb.x && this.x < bb.x2 || bb.x > this.x && bb.x < this.x2) ||
+                //check x for adjacency
+                (this.x == bb.x && this.x2 > this.x == bb.x2 > bb.x) ||
+                (this.x2 == bb.x && this.x > this.x2 == bb.x2 > bb.x) ||
+                (this.x == bb.x2 && this.x2 > this.x == bb.x > bb.x2) ||
+                (this.x2 == bb.x2 && this.x > this.x2 == bb.x > bb.x2)) &&
+                //check y for adjacency
+                ((this.y > bb.y && this.y < bb.y2 || bb.y > this.y && bb.y < this.y2) ||
+                (this.y == bb.y && this.y2 > this.y == bb.y2 > bb.y) ||
+                (this.y2 == bb.y && this.y > this.y2 == bb.y2 > bb.y) ||
+                (this.y == bb.y2 && this.y2 > this.y == bb.y > bb.y2) ||
+                (this.y2 == bb.y2 && this.y > this.y2 == bb.y > bb.y2));
     }
 
     public boolean containsPoint(double x, double y) {
@@ -36,5 +56,22 @@ public class BoundingBox {
 
     public double getHeight() {
         return this.y2 - this.y;
+    }
+
+    @Override
+    public String toString() {
+        return "BoundingBox{" +
+                "x=" + x +
+                ", y=" + y +
+                ", x2=" + x2 +
+                ", y2=" + y2 +
+                '}';
+    }
+
+    public void encompass(BoundingBox bb) {
+        this.x = Math.min(this.x, bb.x);
+        this.x2 = Math.max(this.x2, bb.x2);
+        this.y = Math.min(this.y, bb.y);
+        this.y2 = Math.max(this.y2, bb.y2);
     }
 }

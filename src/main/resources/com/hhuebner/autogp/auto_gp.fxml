@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
 <AnchorPane prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.hhuebner.autogp.controllers.MainSceneController">
    <children>
@@ -31,18 +34,25 @@
          <left>
             <VBox prefHeight="388.0" prefWidth="273.0" spacing="10.0" style="-fx-background-color: #e6e5dc;" BorderPane.alignment="CENTER">
                <children>
+                  <HBox layoutX="10.0" layoutY="10.0" prefHeight="7.0" prefWidth="176.0">
+                     <children>
+                        <Label prefHeight="17.0" prefWidth="78.0" text="Grundfläche:" />
+                        <TextField onKeyTyped="#onSetScale" prefHeight="25.0" prefWidth="60.0" />
+                        <ChoiceBox fx:id="inputUnitChoiceBaseArea" prefHeight="25.0" prefWidth="42.0" />
+                     </children>
+                  </HBox>
                   <HBox prefHeight="7.0" prefWidth="176.0">
                      <children>
-                        <Label prefHeight="17.0" prefWidth="65.0" text="Scale:" />
+                        <Label prefHeight="17.0" prefWidth="65.0" text="Masßstab:" />
                         <TextField onKeyTyped="#onSetScale" prefHeight="25.0" prefWidth="73.0" />
                         <ChoiceBox fx:id="inputUnitChoice" prefHeight="25.0" prefWidth="49.0" />
-                        <Label prefHeight="17.0" prefWidth="132.0" text="     Ausgabe Einheit:" />
+                        <Label prefHeight="17.0" prefWidth="78.0" text="     Ausgabe:" />
                         <ChoiceBox fx:id="outputUnitChoice" prefHeight="25.0" prefWidth="49.0" />
                      </children>
                   </HBox>
                   <HBox alignment="CENTER_LEFT" prefHeight="35.0" prefWidth="273.0">
                      <children>
-                        <Label prefHeight="26.0" prefWidth="50.0" text="Rooms:" />
+                        <Label prefHeight="26.0" prefWidth="50.0" text="Räume:" />
                         <HBox alignment="CENTER_RIGHT" prefHeight="35.0" prefWidth="222.0">
                            <children>
                               <Button mnemonicParsing="false" onAction="#onAddRoom" styleClass="agp-button" stylesheets="@style.css" text="+" />
@@ -54,15 +64,15 @@
                     <content>
                       <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="200.0" prefWidth="272.0">
                            <children>
-                              <TableView layoutX="-1.0" prefHeight="200.0" prefWidth="272.0">
-                                <columns>
-                                  <TableColumn prefWidth="75.0" text="Room" />
-                                  <TableColumn prefWidth="75.0" text="Size" />
-                                    <TableColumn prefWidth="75.0" text="Furniture" />
-                                </columns>
-                                 <columnResizePolicy>
-                                    <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
-                                 </columnResizePolicy>
+                              <TableView layoutX="-1.0" prefHeight="200.0" prefWidth="272.0" fx:id="roomsOverviewTable">
+                                    <columns>
+                                        <TableColumn prefWidth="75.0" text="Name" fx:id="nameCol"/>
+                                        <TableColumn prefWidth="75.0" text="Größe" fx:id="sizeCol"/>
+                                        <TableColumn prefWidth="75.0" text="Einrichtung" fx:id="furnitureCol"/>
+                                    </columns>
+                                    <columnResizePolicy>
+                                        <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+                                    </columnResizePolicy>
                               </TableView>
                            </children>
                         </AnchorPane>
@@ -70,7 +80,7 @@
                   </ScrollPane>
                   <VBox alignment="BOTTOM_CENTER" prefHeight="74.0" prefWidth="273.0">
                      <children>
-                        <Button alignment="CENTER" mnemonicParsing="false" onAction="#onGenerate" prefHeight="50.0" prefWidth="155.0" styleClass="agp-button" stylesheets="@style.css" text="Generate" />
+                        <Button alignment="CENTER" mnemonicParsing="false" onAction="#onGenerate" prefHeight="50.0" prefWidth="155.0" styleClass="agp-button" stylesheets="@style.css" text="Generiere Grundriss" />
                      </children>
                   </VBox>
                </children>
@@ -88,6 +98,14 @@
                         <Button mnemonicParsing="false" onAction="#onClickRulerTool" text="Ruler" />
                     </items>
                   </ToolBar>
+                  <ImageView fitHeight="100.0" fitWidth="93.0" pickOnBounds="true" preserveRatio="true" StackPane.alignment="TOP_RIGHT">
+                     <image>
+                        <Image url="@assets/compass_needle.png" />
+                     </image>
+                     <StackPane.margin>
+                        <Insets top="15.0" />
+                     </StackPane.margin>
+                  </ImageView>
                </children>
             </StackPane>
          </center>

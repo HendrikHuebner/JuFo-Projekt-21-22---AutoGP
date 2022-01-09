@@ -4,7 +4,7 @@ public enum Unit {
     CENTIMETRES("cm", 0.01),
     DECIMETRES("dm", 0.1),
     METRES("m", 1.0),
-    OCTOMETRE("om", 0.125),
+    OCTOMETRE("om", 0.125), //apparently architects use this sometimes..?
     INCHES("in", 0.0254),
     FEET("ft", 0.32),
     YARDS("yd", 0.81);

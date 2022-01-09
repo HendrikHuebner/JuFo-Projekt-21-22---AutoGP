@@ -14,4 +14,8 @@ public abstract class PlanComponent {
 
 
     public abstract void render(GraphicsContext ctx);
+
+    public String getName() {
+        return this.name;
+    }
 }

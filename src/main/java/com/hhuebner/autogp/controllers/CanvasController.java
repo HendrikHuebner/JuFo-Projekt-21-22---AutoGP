@@ -1,6 +1,8 @@
 package com.hhuebner.autogp.controllers;
 
+import com.hhuebner.autogp.core.InformationLabel;
 import com.hhuebner.autogp.core.InputHandler;
+import com.hhuebner.autogp.core.component.InteractableComponent;
 import com.hhuebner.autogp.core.engine.GPEngine;
 import com.hhuebner.autogp.ui.Camera;
 import javafx.fxml.FXML;
@@ -17,6 +19,7 @@ public class CanvasController {
 
     private final Camera cam;
     @FXML public Canvas canvas;
+    @FXML public InformationLabel infoLabel;
     private InputHandler inputHandler;
     private GPEngine engine;
     private Point2D prevMousePos = new Point2D(0, 0);
@@ -34,6 +37,15 @@ public class CanvasController {
 
         if (this.inputHandler.getTool() == InputHandler.Tool.CURSOR) {
             inputHandler.onCursorClick(mouse.getX(), mouse.getY());
+
+            //update information bar
+            Optional<InteractableComponent> component = inputHandler.getSelectedComponent();
+            component.ifPresent(c -> {
+                infoLabel.setInformation(this.inputHandler, c.getBoundingBox().getWidth(),
+                        c.getBoundingBox().getHeight(), c.getName().toString());
+            });
+
+            if(!component.isPresent()) infoLabel.clear();
         }
 
         this.prevMousePos = mouse;
