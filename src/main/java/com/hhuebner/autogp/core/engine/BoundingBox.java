@@ -23,6 +23,11 @@ public class BoundingBox {
         this.y2 = bb.y2;
     }
 
+    /**
+     * Returns true if BoundingBox intersects with parameter bb. Returns false if they are adjacent.
+     * @param bb
+     * @return
+     */
     public boolean intersects(BoundingBox bb) {
         //check for intersection
         return ((this.x > bb.x && this.x < bb.x2 || bb.x > this.x && bb.x < this.x2) ||
@@ -39,10 +44,21 @@ public class BoundingBox {
                 (this.y2 == bb.y2 && this.y > this.y2 == bb.y > bb.y2));
     }
 
+    /**
+     * Returns true if BoundingBox contains the point at (x, y)
+     * @param x
+     * @param y
+     * @return
+     */
     public boolean containsPoint(double x, double y) {
         return this.y <= y && this.y2 >= y && this.x <= x && this.x2 >= x;
     }
 
+    /**
+     * Moves BoundingBox by parameters dx and dy
+     * @param dx
+     * @param dy
+     */
     public void move(double dx, double dy) {
         this.x += dx;
         this.y += dy;
@@ -68,6 +84,10 @@ public class BoundingBox {
                 '}';
     }
 
+    /**
+     * If this BoundingBox does not contain bb, scale it up just enough, so it contains bb
+     * @param bb
+     */
     public void encompass(BoundingBox bb) {
         this.x = Math.min(this.x, bb.x);
         this.x2 = Math.max(this.x2, bb.x2);

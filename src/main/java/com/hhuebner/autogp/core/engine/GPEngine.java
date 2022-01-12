@@ -38,7 +38,7 @@ public class GPEngine {
     }
 
     public void generate() {
-        long seed = seedGen.nextLong(); //
+        long seed = seedGen.nextLong(); //7612126103766120639
         Random rand = new Random(seed);
         AutoGP.log("Seed: " + seed);
 
@@ -76,51 +76,40 @@ public class GPEngine {
                 if(!a.neighborTopLeft.isPresent() && a.neighborBottomLeft.isPresent()) continue;
 
                 //find minimal Bounding Boxes
-                BoundingBox minBBX = new BoundingBox(a.getX(), a.getY(), a.getX() + maxLength, a.getY() + minLength);
-                BoundingBox minBBY = new BoundingBox(a.getX(), a.getY(), a.getX() + minLength, a.getY() + maxLength);
+                BoundingBox maxBB = new BoundingBox(a.getX(), a.getY(), a.getX() + maxLength, a.getY() + maxLength);
 
                 if(a.directionFacing.dx + a.side.dx < 0) {
-                    minBBX.move(-minBBX.getWidth(), 0);
-                    minBBY.move(-minBBY.getWidth(), 0);
+                    maxBB.move(-maxBB.getWidth(), 0);
                 }
 
                 if(a.directionFacing.dy + a.side.dy < 0) {
-                    minBBX.move(0, -minBBX.getHeight());
-                    minBBY.move(0, -minBBY.getHeight());
+                    maxBB.move(0, -maxBB.getHeight());
                 }
 
                 //test if within graph limit
-                if(Math.abs(minBBX.x2 - graphBB.x) > 15 || Math.abs(minBBY.x2 - graphBB.x) > 15 ||
-                        Math.abs(minBBX.x - graphBB.x2) > 15 || Math.abs(minBBY.x - graphBB.x2) > 15 ||
-                        Math.abs(minBBX.y2 - graphBB.y) > 15 || Math.abs(minBBY.y2 - graphBB.y) > 15 ||
-                        Math.abs(minBBX.y - graphBB.y2) > 15 || Math.abs(minBBY.y - graphBB.y2) > 15) {
+                if(Math.abs(maxBB.x2 - graphBB.x) > 15 ||
+                        Math.abs(maxBB.x - graphBB.x2) > 15 ||
+                        Math.abs(maxBB.y2 - graphBB.y) > 15 ||
+                        Math.abs(maxBB.y - graphBB.y2) > 15 ) {
                     AutoGP.log("out of bounds! ", graphBB);
                     continue;
                 }
 
                 //test placement
-                if (!this.intersectsAnyPlacedRoom(minBBX)) {
-                    if (!this.intersectsAnyPlacedRoom(minBBY)) {
-                        //Boundingbox can be a random size
-                        room.boundingBox = getRandomBB(rand, room.type.minRatio, room.size, a.getX(), a.getY());
-                        if(a.directionFacing.dx + a.side.dx < 0) room.boundingBox.move(-room.boundingBox.getWidth(), 0);
-                        if(a.directionFacing.dy + a.side.dy < 0) room.boundingBox.move(0, -room.boundingBox.getHeight());
+                if (!this.intersectsAnyPlacedRoom(maxBB)) {
+                    //Boundingbox can be a random size
+                    room.boundingBox = getRandomBB(rand, room.type.minRatio, room.size, a.getX(), a.getY());
+                    if(a.directionFacing.dx + a.side.dx < 0) room.boundingBox.move(-room.boundingBox.getWidth(), 0);
+                    if(a.directionFacing.dy + a.side.dy < 0) room.boundingBox.move(0, -room.boundingBox.getHeight());
 
-                        this.roundToAdjacentBB(room.boundingBox, a.side, a.room.boundingBox);
-                        a.neighborTopLeft.ifPresent(n -> {
-                            AutoGP.log("Rounded: ", room.name);
-                            //GPEngine.this.roundToAdjacentBB(room.boundingBox, a.directionFacing.getOpposite(), n.boundingBox);
-                        });
+                    this.roundToAdjacentBB(room.boundingBox, a.side, a.directionFacing, a.room.boundingBox);
+                    a.neighborTopLeft.ifPresent(n -> {
+                        AutoGP.log("Rounded: ", room.name);
+                        GPEngine.this.roundToAdjacentBB(room.boundingBox, a.directionFacing.getOpposite(), a.side, n.boundingBox);
+                    });
 
-                        graph.add(room);
-                        graphBB.encompass(room.boundingBox);
-                        continue roomAdd;
-                    } else {
-                        //BoundingBox is restricted to height
-                    }
-                } else if (!this.intersectsAnyPlacedRoom(minBBY)) {
-                    //BoundingBox is restricted to width
-
+                    graph.add(room);
+                    continue roomAdd;
                 }
             }
         }
@@ -130,18 +119,22 @@ public class GPEngine {
         }
     }
 
-    private void roundToAdjacentBB(BoundingBox toRound, Direction side, BoundingBox adjacent) {
+    private void roundToAdjacentBB(BoundingBox toRound, Direction side, Direction facing, BoundingBox adjacent) {
         //find adjacent side
-        double len1 = side.isHorizontal() ? adjacent.getHeight() : adjacent.getWidth();
-        double len2 = side.isHorizontal() ? toRound.getHeight() : toRound.getWidth();
+        double d = 0.0;
+        switch(facing) {
+            case NORTH -> d = adjacent.y - toRound.y;
+            case SOUTH -> d = adjacent.y2 - toRound.y2;
+            case EAST -> d = adjacent.x2 - toRound.x2;
+            case WEST -> d = adjacent.x - toRound.x;
+        }
 
-        if(Math.abs(len1 - len2) < 1) { //FIXME: 1 meter
-            if(side.isHorizontal()) {
-                toRound.y = adjacent.y;
-                toRound.y2 = adjacent.y2;
-            } else {
-                toRound.x = adjacent.x;
-                toRound.x2 = adjacent.x2;
+        if(Math.abs(d) < 1) { //FIXME: 1 meter
+            switch(facing) {
+                case NORTH -> toRound.y = adjacent.y;
+                case SOUTH -> toRound.y2 = adjacent.y2;
+                case EAST -> toRound.x2 = adjacent.x2;
+                case WEST -> toRound.x = adjacent.x;
             }
         }
     }

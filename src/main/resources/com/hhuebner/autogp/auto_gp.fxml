@@ -99,9 +99,6 @@
                     </items>
                   </ToolBar>
                   <ImageView fitHeight="100.0" fitWidth="93.0" pickOnBounds="true" preserveRatio="true" StackPane.alignment="TOP_RIGHT">
-                     <image>
-                        <Image url="@assets/compass_needle.png" />
-                     </image>
                      <StackPane.margin>
                         <Insets top="15.0" />
                      </StackPane.margin>
