@@ -40,10 +40,7 @@ public class CanvasController {
 
             //update information bar
             Optional<InteractableComponent> component = inputHandler.getSelectedComponent();
-            component.ifPresent(c -> {
-                infoLabel.setInformation(this.inputHandler, c.getBoundingBox().getWidth(),
-                        c.getBoundingBox().getHeight(), c.getName().toString());
-            });
+            component.ifPresent(c -> infoLabel.setInformation(c, this.inputHandler));
 
             if(!component.isPresent()) infoLabel.clear();
         }
@@ -71,19 +68,17 @@ public class CanvasController {
             inputHandler.dragEnd = Optional.of(new Point2D(event.getX(), event.getY())));
         
         switch (this.inputHandler.getTool()) {
-            case MOVE -> {
+            case MOVE ->
                 this.cam.move(mouse.subtract(this.prevMousePos));
-            }
-            case CURSOR -> {
+            case CURSOR ->
                 this.inputHandler.handleCursorDrag(this.prevMousePos.getX(), prevMousePos.getY(), mouse.getX(), mouse.getY());
-            }
         }
 
         this.prevMousePos = this.cam.getTransform().inverseTransform(event.getX(), event.getY());
     }
 
     @FXML 
-    public void onCanvasScroll(ScrollEvent event) throws NonInvertibleTransformException {
+    public void onCanvasScroll(ScrollEvent event) {
         //remove selection box
         inputHandler.clearSelection();
 

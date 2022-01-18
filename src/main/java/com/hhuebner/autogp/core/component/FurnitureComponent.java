@@ -1,5 +1,6 @@
 package com.hhuebner.autogp.core.component;
 
+import com.hhuebner.autogp.core.InputHandler;
 import com.hhuebner.autogp.core.component.furniture.FurnitureItem;
 import com.hhuebner.autogp.core.engine.BoundingBox;
 import javafx.scene.canvas.GraphicsContext;
@@ -14,7 +15,7 @@ public class FurnitureComponent extends InteractableComponent {
     }
 
     @Override
-    public void render(GraphicsContext ctx) {
+    public void render(GraphicsContext ctx, InputHandler inputHandler) {
         ctx.save();
         ctx.drawImage(this.item.getImage(), this.bb.x, this.bb.y, this.bb.getWidth(), this.bb.getHeight());
         ctx.restore();

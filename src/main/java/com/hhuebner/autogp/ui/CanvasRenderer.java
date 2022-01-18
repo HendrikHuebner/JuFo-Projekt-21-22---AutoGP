@@ -4,6 +4,7 @@ import com.hhuebner.autogp.core.InputHandler;
 import com.hhuebner.autogp.core.Options;
 import com.hhuebner.autogp.core.component.InteractableComponent;
 import com.hhuebner.autogp.core.component.PlanComponent;
+import com.hhuebner.autogp.core.component.RoomComponent;
 import com.hhuebner.autogp.core.engine.BoundingBox;
 import com.hhuebner.autogp.core.engine.GPEngine;
 import com.hhuebner.autogp.core.engine.Room;
@@ -47,30 +48,28 @@ public class CanvasRenderer extends AnimationTimer {
         if(Options.showGrid)
             drawGrid(ctx);
 
-        for(PlanComponent component : engine.getComponents()) {
-            component.render(ctx);
-        }
+        for(RoomComponent roomComponent : engine.getComponents()) {
+            roomComponent.render(ctx, inputHandler);
 
-        //TODO: move wall rendering to components
-        for(Room r : this.engine.getGraph()) {
-            r.render(ctx, inputHandler);
+            for(PlanComponent component : roomComponent.getChildren()) {
+                component.render(ctx, inputHandler);
+            }
         }
 
         if(inputHandler.getSelectedComponent().isPresent()) {
             PlanComponent component = inputHandler.getSelectedComponent().get();
             if(component instanceof InteractableComponent) {
-                ((InteractableComponent)component).renderSelectionOutline(ctx, this.cam);
+                ((InteractableComponent)component).renderSelectionOutline(ctx, this.cam, this.inputHandler);
 
                 if(this.inputHandler.getTool() == InputHandler.Tool.CURSOR)
-                    ((InteractableComponent)component).renderInteractionBox(ctx, this.cam);
+                    ((InteractableComponent)component).renderInteractionBox(ctx, this.cam, this.inputHandler);
             }
 
-            if(this.inputHandler.getTool() == InputHandler.Tool.RULER)
-                this.drawMeasurements(ctx, (InteractableComponent)component);
+            //if(this.inputHandler.getTool() == InputHandler.Tool.RULER)
+                //this.drawMeasurements(ctx, (InteractableComponent)component);
         }
 
         ctx.restore();
-
         drawGridNumbers(ctx);
 
         if(inputHandler.getTool() == InputHandler.Tool.SELECTION && inputHandler.hasSelection()) {
@@ -78,6 +77,7 @@ public class CanvasRenderer extends AnimationTimer {
         }
     }
 
+    /*
     @Deprecated
     private void drawMeasurements(GraphicsContext ctx, InteractableComponent component) {
         BoundingBox bb = component.getBoundingBox();
@@ -108,7 +108,7 @@ public class CanvasRenderer extends AnimationTimer {
                         this.inputHandler.scalingUnit.second.name), -textOffset, bb.y / 2 + bb.y2 / 2);
 
         ctx.restore();
-    }
+    }*/
 
     @Deprecated
     private void drawSelectionBox(GraphicsContext ctx, double[] selection) {
@@ -138,7 +138,7 @@ public class CanvasRenderer extends AnimationTimer {
         ctx.setTextAlign(TextAlignment.RIGHT);
 
         for(int i = 0; i < cellCountX; i++) {
-            ctx.fillText(String.format("%.1f", Utility.pixelsToUnit(startX/CELL_SIZE + i, this.inputHandler)),
+            ctx.fillText(String.format("%.1f", Utility.calcPixels(startX/CELL_SIZE + i, this.inputHandler)),
                     (this.cam.getX() % CELL_SIZE + i * CELL_SIZE) * cam.getScaleX(), canvas.getHeight() - 10);
         }
 
@@ -146,7 +146,7 @@ public class CanvasRenderer extends AnimationTimer {
         ctx.setTextAlign(TextAlignment.CENTER);
 
         for(int i = 0; i < cellCountY; i++) {
-            ctx.fillText(String.format("%.1f", Utility.pixelsToUnit(startY/CELL_SIZE + i, this.inputHandler)), 10,
+            ctx.fillText(String.format("%.1f", Utility.calcPixels(startY/CELL_SIZE + i, this.inputHandler)), 10,
                     (this.cam.getY() % CELL_SIZE + i * CELL_SIZE) * cam.getScaleY());
         }
 

@@ -5,6 +5,7 @@ import com.hhuebner.autogp.core.engine.GPEngine;
 import com.hhuebner.autogp.core.engine.Room;
 import com.hhuebner.autogp.core.util.Unit;
 import com.hhuebner.autogp.core.util.UnitSq;
+import com.hhuebner.autogp.core.util.Utility;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -48,8 +49,8 @@ public class MainSceneController {
     @FXML
     public void initialize() {
         //TableView
-        nameCol.setCellValueFactory(new PropertyValueFactory<Room, String>("name"));
-        sizeCol.setCellValueFactory(new PropertyValueFactory<Room, String>("size"));
+        nameCol.setCellValueFactory(new PropertyValueFactory("name"));
+        sizeCol.setCellValueFactory(new PropertyValueFactory("size"));
 
         //Choice boxes
         ObservableList<Unit> units = FXCollections.observableArrayList(Unit.values());
@@ -61,16 +62,15 @@ public class MainSceneController {
         inputUnitChoice.setValue(Unit.METRES);
         outputUnitChoice.setValue(Unit.METRES);
         inputUnitChoiceBaseArea.setValue(UnitSq.METRES);
+        
+        outputUnitChoice.setOnAction((event) ->  {
+            this.inputHandler.displayUnit = outputUnitChoice.getValue();
+            this.canvasController.infoLabel.update(this.inputHandler);
+        });
 
         inputUnitChoice.setOnAction((event) ->  {
-            this.inputHandler.scalingUnit.first = inputUnitChoice.getValue();
             this.canvasController.infoLabel.update(this.inputHandler);
         });
-        outputUnitChoice.setOnAction((event) ->  {
-            this.inputHandler.scalingUnit.second = outputUnitChoice.getValue();
-            this.canvasController.infoLabel.update(this.inputHandler);
-        });
-        inputUnitChoiceBaseArea.setOnAction((event) ->  this.inputHandler.scalingUnit.first = inputUnitChoice.getValue());
     }
 
     @FXML
@@ -95,6 +95,7 @@ public class MainSceneController {
         }
         catch(NumberFormatException e) {}
         finally {
+            value = Utility.convertUnit(value, this.inputUnitChoice.getValue(), Unit.METRES); //internally, everything is in metres 
             this.inputHandler.globalScale = value;
         }
     }

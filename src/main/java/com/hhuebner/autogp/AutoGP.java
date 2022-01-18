@@ -22,13 +22,12 @@ public class AutoGP extends Application {
     private Scene mainScene = null;
     private Scene roomEditorScene = null;
     private FXMLLoader mainLoader = null;
-    private InputHandler inputHandler = null;
 
     @Override
-    public void start(Stage stage) throws IOException, URISyntaxException { //TODO: refactor
+    public void start(Stage stage) throws IOException { //TODO: refactor
         Camera camera = new Camera();
-        GPEngine engine = new GPEngine(() -> AutoGP.this.mainLoader.getController(), () -> AutoGP.this.inputHandler);
-        inputHandler = new InputHandler(() -> this.mainScene, engine);
+        GPEngine engine = new GPEngine(() -> AutoGP.this.mainLoader.getController());
+        InputHandler inputHandler = new InputHandler(() -> this.mainScene, engine);
         ControllerFactory mainCF = new ControllerFactory();
 
         mainCF.registerController(MainSceneController.class, new MainSceneController(inputHandler, () -> this.roomEditorScene, engine));
@@ -37,7 +36,6 @@ public class AutoGP extends Application {
 
         mainLoader = new FXMLLoader(getClass().getResource("auto_gp.fxml"));
         mainCF.setControllers(mainLoader);
-
 
         ControllerFactory roomEditorCF = new ControllerFactory();
         roomEditorCF.registerController(RoomEditorController.class, new RoomEditorController(engine, () -> AutoGP.this.mainLoader.getController()));

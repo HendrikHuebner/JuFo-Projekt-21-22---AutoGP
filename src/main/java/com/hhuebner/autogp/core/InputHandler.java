@@ -1,17 +1,22 @@
 package com.hhuebner.autogp.core;
 
+import com.hhuebner.autogp.AutoGP;
 import com.hhuebner.autogp.core.component.InteractableComponent;
 import com.hhuebner.autogp.core.component.PlanComponent;
+import com.hhuebner.autogp.core.component.RoomComponent;
 import com.hhuebner.autogp.core.engine.BoundingBox;
 import com.hhuebner.autogp.core.engine.DragMode;
 import com.hhuebner.autogp.core.engine.GPEngine;
 import com.hhuebner.autogp.core.util.Pair;
 import com.hhuebner.autogp.core.util.Unit;
+import com.hhuebner.autogp.core.util.Utility;
 import javafx.geometry.Point2D;
 import javafx.scene.Scene;
 
 import java.util.Optional;
 import java.util.function.Supplier;
+
+import static com.hhuebner.autogp.core.engine.GPEngine.CELL_SIZE;
 
 public class InputHandler {
 
@@ -19,7 +24,7 @@ public class InputHandler {
     private final Supplier<Scene> scene;
     public Optional<Point2D> dragStart = Optional.empty();
     public Optional<Point2D> dragEnd = Optional.empty();
-    public Pair<Unit, Unit> scalingUnit = new Pair(Unit.METRES, Unit.METRES);
+    public Unit displayUnit = Unit.METRES;
     private Tool tool = Tool.MOVE;
     private Optional<InteractableComponent> selected = Optional.empty();
     private Optional<DragMode> selectedDragMode = Optional.empty();
@@ -46,38 +51,59 @@ public class InputHandler {
         //Check if a resize box has been clicked
         if(this.selected.isPresent()) {
             BoundingBox bb = this.selected.get().getBoundingBox();
-            double w = bb.getWidth() / 2; //half width of bb
-            double h = bb.getHeight() / 2; //half height of bb
             final double o = 12; //half of the side length of the clickable box
-            
-            if(new BoundingBox(bb.x + w - o, bb.y - o, bb.x + w + o, bb.y + o)
+
+            double x = Utility.calcPixels(bb.x, this) * CELL_SIZE;
+            double x2 = Utility.calcPixels(bb.x2, this) * CELL_SIZE;
+            double y = Utility.calcPixels(bb.y, this) * CELL_SIZE;
+            double y2 = Utility.calcPixels(bb.y2, this) * CELL_SIZE;
+            double w = (x2 - x) / 2; //half width of bb
+            double h = (y2 - y) / 2; //half height of bb
+
+            if(new BoundingBox(x + w - o, y - o, x + w + o, y + o)
                     .containsPoint(mouseXAbsolute, mouseYAbsolute)) {
                 this.selectedDragMode = Optional.of(DragMode.NORTH); return;
-            } else if(new BoundingBox(bb.x + w - o, bb.y2 - o, bb.x + w + o, bb.y2 + o)
+            } else if(new BoundingBox(x + w - o, y2 - o, x + w + o, y2 + o)
                     .containsPoint(mouseXAbsolute, mouseYAbsolute)) {
                 this.selectedDragMode = Optional.of(DragMode.SOUTH); return;
-            } else if(new BoundingBox(bb.x - o, bb.y + h - o, bb.x + o, bb.y + h + o)
+            } else if(new BoundingBox(x - o, y + h - o, x + o, y + h + o)
                     .containsPoint(mouseXAbsolute, mouseYAbsolute)) {
                 this.selectedDragMode = Optional.of(DragMode.WEST); return;
-            } else if(new BoundingBox(bb.x2 - o, bb.y + h - o, bb.x2 + o, bb.y + h + o)
+            } else if(new BoundingBox(x2 - o, y + h - o, x2 + o, y + h + o)
                     .containsPoint(mouseXAbsolute, mouseYAbsolute)) {
                 this.selectedDragMode = Optional.of(DragMode.EAST); return;
             }
         }
-        
-        for(PlanComponent component : this.engine.getComponents()) {
-            if(component instanceof InteractableComponent) {
-                if (((InteractableComponent)component).getBoundingBox().containsPoint(mouseXAbsolute, mouseYAbsolute)) {
 
-                    if (this.selected.isPresent() && this.selected.get().equals(component)) {
-                        //if selected component was clicked again, set drag mode to MOVE
-                        this.selectedDragMode = Optional.of(DragMode.MOVE);
+        double mouseX = mouseXAbsolute / (this.displayUnit.factor * GPEngine.CELL_SIZE * globalScale);
+        double mouseY = mouseYAbsolute / (this.displayUnit.factor * GPEngine.CELL_SIZE * globalScale);
 
-                    } else
-                        this.selected = Optional.of((InteractableComponent) component);
-                } else
-                    this.selected = Optional.empty();
+        for(RoomComponent roomComponent : this.engine.getComponents()) {
+            AutoGP.log(roomComponent.getName(), roomComponent.getBoundingBox());
+            for(PlanComponent component : roomComponent.getChildren()) {
+                if(component instanceof InteractableComponent) {
+                    if(selectComponentAtPoint(roomComponent, mouseX, mouseY)) return;
+                }
             }
+
+            if(selectComponentAtPoint(roomComponent, mouseX, mouseY)) return;
+        }
+    }
+
+    private boolean selectComponentAtPoint(InteractableComponent component, double mouseX, double mouseY) {
+        if (component.getBoundingBox().containsPoint(mouseX, mouseY)) {
+            if (this.selected.isPresent() && this.selected.get().equals(component)) {
+                //if selected component was clicked again, set drag mode to MOVE
+                this.selectedDragMode = Optional.of(DragMode.MOVE);
+
+            } else {
+                this.selected = Optional.of(component);
+            }
+
+            return true;
+        } else {
+            this.selected = Optional.empty();
+            return false;
         }
     }
 
@@ -85,8 +111,12 @@ public class InputHandler {
         if(this.selected.isPresent() && this.selectedDragMode.isPresent()) {
             DragMode dragMode = this.selectedDragMode.get();
             InteractableComponent component = this.selected.get();
-            double dx = currentX - startX;
-            double dy = currentY - startY;
+            double dxPX = currentX - startX; //in pixels
+            double dyPX = currentY - startY;
+
+            //pixels to meters
+            double dx = dxPX / CELL_SIZE / this.globalScale;
+            double dy = dyPX / CELL_SIZE / this.globalScale;
 
             switch(dragMode) {
                 case MOVE -> component.getBoundingBox().move(dx, dy);
