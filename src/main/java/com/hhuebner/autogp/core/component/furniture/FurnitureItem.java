@@ -2,6 +2,7 @@ package com.hhuebner.autogp.core.component.furniture;
 
 import com.hhuebner.autogp.AutoGP;
 import com.hhuebner.autogp.core.component.PlanComponent;
+import com.hhuebner.autogp.core.engine.GPEngine;
 import com.hhuebner.autogp.core.engine.ImageLoader;
 import javafx.scene.image.Image;
 
@@ -39,5 +40,13 @@ public class FurnitureItem {
 
     public Image getImage() {
         return image;
+    }
+
+    public double getWidth() {
+        return this.image.getWidth() / 100.0;
+    }
+
+    public double getHeight() {
+        return this.image.getHeight() / 100.0;
     }
 }

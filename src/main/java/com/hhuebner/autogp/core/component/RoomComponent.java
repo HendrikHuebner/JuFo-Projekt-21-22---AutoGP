@@ -20,19 +20,8 @@ import static com.hhuebner.autogp.core.engine.GPEngine.CELL_SIZE;
 public class RoomComponent extends InteractableComponent {
 
     public final Room room;
-    public List<WallPosition> doors = new ArrayList<>();
-    public List<WallPosition> windows = new ArrayList<>();
-    private static Map<RoomType, Color> typeColors = new HashMap<>();
-
     private final List<PlanComponent> children = new ArrayList<>();
 
-    static {
-        typeColors.put(RoomType.LIVING_ROOM, Color.YELLOW);
-        typeColors.put(RoomType.BED_ROOM, Color.GREEN);
-        typeColors.put(RoomType.KITCHEN, Color.ORANGE);
-        typeColors.put(RoomType.BATH_ROOM, Color.LIGHTBLUE);
-        typeColors.put(RoomType.HALLWAY, Color.LIGHTGREY);
-    }
 
     public RoomComponent(Room room, BoundingBox bb, long id) {
         super(bb, "room" + id, id);
@@ -41,20 +30,9 @@ public class RoomComponent extends InteractableComponent {
 
     @Override
     public void render(GraphicsContext ctx, InputHandler inputHandler) {
-        ctx.save();
-        ctx.setStroke(Color.BLACK);
-        ctx.setFill(this.typeColors.get(this.room.type));
-        ctx.setLineWidth(4);
-        double scaledX = Utility.calcPixels(bb.x, inputHandler) * CELL_SIZE;
-        double scaledY = Utility.calcPixels(bb.y, inputHandler) * CELL_SIZE;
-        double scaledW = Utility.calcPixels(bb.getWidth(), inputHandler) * CELL_SIZE;
-        double scaledH = Utility.calcPixels(bb.getHeight(), inputHandler) * CELL_SIZE;
-        ctx.save();
-        ctx.setGlobalAlpha(0.4);
-        ctx.fillRect(scaledX, scaledY, scaledW, scaledH);
-        ctx.restore();
-        ctx.strokeRect(scaledX, scaledY, scaledW, scaledH);
-        ctx.restore();
+        for(PlanComponent component : this.children) {
+            component.render(ctx, inputHandler);
+        }
     }
 
     public List<AnchorPoint> getAnchors(List<RoomComponent> graph) {
@@ -67,11 +45,20 @@ public class RoomComponent extends InteractableComponent {
         return list;
     }
 
+    public void addChild(PlanComponent component) {
+        this.children.add(component);
+    }
+
     public List<PlanComponent> getChildren() {
         return this.children;
     }
 
-    private static record WallPosition(Direction side, double position, boolean facingInwards) {
 
+    public WallComponent getWallComponent() {
+        for(PlanComponent c : children) {
+            if(c instanceof  WallComponent)
+                return (WallComponent) c;
+        }
+        throw new ExceptionInInitializerError();
     }
 }

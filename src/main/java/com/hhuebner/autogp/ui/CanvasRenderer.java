@@ -7,6 +7,7 @@ import com.hhuebner.autogp.core.component.PlanComponent;
 import com.hhuebner.autogp.core.component.RoomComponent;
 import com.hhuebner.autogp.core.engine.BoundingBox;
 import com.hhuebner.autogp.core.engine.GPEngine;
+import com.hhuebner.autogp.core.engine.ImageLoader;
 import com.hhuebner.autogp.core.engine.Room;
 import com.hhuebner.autogp.core.util.Utility;
 import javafx.animation.AnimationTimer;
@@ -50,23 +51,16 @@ public class CanvasRenderer extends AnimationTimer {
 
         for(RoomComponent roomComponent : engine.getComponents()) {
             roomComponent.render(ctx, inputHandler);
-
-            for(PlanComponent component : roomComponent.getChildren()) {
-                component.render(ctx, inputHandler);
-            }
         }
 
         if(inputHandler.getSelectedComponent().isPresent()) {
             PlanComponent component = inputHandler.getSelectedComponent().get();
             if(component instanceof InteractableComponent) {
-                ((InteractableComponent)component).renderSelectionOutline(ctx, this.cam, this.inputHandler);
+                ((InteractableComponent) component).renderSelectionOutline(ctx, this.cam, this.inputHandler);
 
-                if(this.inputHandler.getTool() == InputHandler.Tool.CURSOR)
-                    ((InteractableComponent)component).renderInteractionBox(ctx, this.cam, this.inputHandler);
+                if (this.inputHandler.getTool() == InputHandler.Tool.CURSOR)
+                    ((InteractableComponent) component).renderInteractionBox(ctx, this.cam, this.inputHandler);
             }
-
-            //if(this.inputHandler.getTool() == InputHandler.Tool.RULER)
-                //this.drawMeasurements(ctx, (InteractableComponent)component);
         }
 
         ctx.restore();

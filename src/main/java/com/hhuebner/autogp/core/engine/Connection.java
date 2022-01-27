@@ -3,54 +3,47 @@ package com.hhuebner.autogp.core.engine;
 import com.hhuebner.autogp.core.component.RoomComponent;
 import com.hhuebner.autogp.core.util.Direction;
 
-public class Connection {
+import java.util.Arrays;
 
-    private final RoomComponent roomComponent;
-    private final Direction side;
-    private final double end;
-    private final double start;
+import static com.hhuebner.autogp.core.util.Utility.epsEquals;
 
-    public Connection(RoomComponent roomComponent, Direction side, double start, double end) {
-        this.roomComponent = roomComponent;
-        this.side = side;
-        this.start = start;
-        this.end = end;
-    }
+public record Connection(RoomComponent roomComponent, Direction side, double start, double end) {
+
 
     public static Connection getConnection(RoomComponent r1, RoomComponent r2) {
-        BoundingBox bb1 = r1.getBoundingBox();
-        BoundingBox bb2 = r2.getBoundingBox();
-
-        boolean xIntersection1 = bb1.x >= bb2.x && bb1.x < bb2.x2;
-        boolean xIntersection2 = bb2.x >= bb1.x && bb2.x < bb1.x2;
-        boolean yIntersection1 = bb1.y >= bb2.y && bb1.y < bb2.y2;
-        boolean yIntersection2 = bb2.y >= bb1.y && bb2.y < bb1.y2;
-
+        BoundingBox bb1 = new BoundingBox(r1.getBoundingBox());
+        BoundingBox bb2 = new BoundingBox(r2.getBoundingBox());
 
         Direction direction = null;
-        if(bb1.x == bb2.x2) direction = Direction.WEST;
-        if(bb1.x2 == bb2.x ) direction = Direction.EAST;
-        if(bb1.y == bb2.y2) direction = Direction.NORTH;
-        if(bb1.y2 == bb2.y) direction = Direction.SOUTH;
+        if (epsEquals(bb1.x, bb2.x2)) direction = Direction.WEST;
+        if (epsEquals(bb1.x2, bb2.x)) direction = Direction.EAST;
+        if (epsEquals(bb1.y, bb2.y2)) direction = Direction.NORTH;
+        if (epsEquals(bb1.y2, bb2.y)) direction = Direction.SOUTH;
 
-        if(direction != null) {
-            if(direction.isHorizontal()) {
-                if(yIntersection1) {
-                    return new Connection(r2, direction, bb2.y2, bb1.y);
-                } else if(yIntersection2) {
-                    return new Connection(r2, direction, bb2.y, bb1.y2);
-                }
+        if (direction != null) {
+            double start;
+            double end;
+            double[] arr;
+
+            if (direction.isHorizontal()) {
+                if(bb1.y2 < bb2.y || bb2.y2 < bb1.y) return null;
+                arr = new double[]{bb1.y, bb1.y2, bb2.y, bb2.y2};
             } else {
-                if(xIntersection1) {
-                    return new Connection(r2, direction, bb2.x2, bb1.x);
-                } else if(xIntersection2) {
-                    return new Connection(r2, direction, bb2.x, bb1.x2);
-                }
+                if(bb1.x2 < bb2.x || bb2.x2 < bb1.x) return null;
+                arr = new double[]{bb1.x, bb1.x2, bb2.x, bb2.x2};
             }
+
+            Arrays.sort(arr);
+            start = arr[1] - (direction.isHorizontal() ? bb1.y : bb1.x);
+            end = arr[2] - (direction.isHorizontal() ? bb1.y : bb1.x);
+
+            if(end - start > 0)
+                return new Connection(r2, direction, start, end);
         }
 
         return null;
     }
+
 
     @Override
     public String toString() {

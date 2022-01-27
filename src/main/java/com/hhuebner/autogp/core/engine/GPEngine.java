@@ -1,10 +1,12 @@
 package com.hhuebner.autogp.core.engine;
 
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ListMultimap;
+import com.google.common.collect.Multimap;
 import com.hhuebner.autogp.AutoGP;
 import com.hhuebner.autogp.controllers.MainSceneController;
 import com.hhuebner.autogp.core.InputHandler;
-import com.hhuebner.autogp.core.component.PlanComponent;
-import com.hhuebner.autogp.core.component.RoomComponent;
+import com.hhuebner.autogp.core.component.*;
 import com.hhuebner.autogp.core.component.furniture.FurnitureItem;
 import com.hhuebner.autogp.core.util.Direction;
 
@@ -14,7 +16,6 @@ import java.util.stream.Collectors;
 
 public class GPEngine {
 
-    private static final Random seedGen = new Random();
     public static final int CELL_SIZE = 150;
     private static final double ROOM_SIZE_DEVIANCE = 0.05;
     private static final double GRAPH_SIZE_LIMIT_FACTOR = 1.4;
@@ -29,17 +30,21 @@ public class GPEngine {
 
         //test room config
         this.rooms.add(new Room.Builder().setType(RoomType.HALLWAY).setSize(15.0).build());
+
         this.rooms.add(new Room.Builder().setType(RoomType.LIVING_ROOM).setSize(25.0).build());
+
         this.rooms.add(new Room.Builder().setType(RoomType.BED_ROOM).setSize(20.0).build());
-        this.rooms.add(new Room.Builder().setType(RoomType.BED_ROOM).setSize(20.0).build());
+        this.rooms.add(new Room.Builder().setType(RoomType.BED_ROOM).setSize(15.0).build());
+        this.rooms.add(new Room.Builder().setType(RoomType.BED_ROOM).setSize(15.0).build());
+
         this.rooms.add(new Room.Builder().setType(RoomType.BATH_ROOM).setSize(10.0).build());
-        this.rooms.add(new Room.Builder().setType(RoomType.KITCHEN).setSize(10.0).build());
+        this.rooms.add(new Room.Builder().setType(RoomType.BATH_ROOM).setSize(10.0).build());
+
+        this.rooms.add(new Room.Builder().setType(RoomType.KITCHEN).setSize(15.0).build());
     }
 
-    public void generate() {
-        long seed = 6293675520558343120l;//seedGen.nextLong();
+    public void generate(long seed) {
         Random rand = new Random(seed);
-        AutoGP.log("Seed: " + seed);
         this.components.clear();
         this.componentIdCounter = 0;
 
@@ -90,8 +95,8 @@ public class GPEngine {
                 }
 
                 //test if within graph limit
-                double xLimit = ((a.side.dx + a.directionFacing.dx > 0) ? graphBB.x + 15 - a.getX() : a.getX() - graphBB.x2 + 15);
-                double yLimit = ((a.side.dy + a.directionFacing.dy > 0) ? graphBB.y + 15 - a.getY() : a.getY() - graphBB.y2 + 15);
+                double xLimit = ((a.side.dx + a.directionFacing.dx > 0) ? graphBB.x + 16 - a.getX() : a.getX() - graphBB.x2 + 16);
+                double yLimit = ((a.side.dy + a.directionFacing.dy > 0) ? graphBB.y + 16 - a.getY() : a.getY() - graphBB.y2 + 16);
                 if(xLimit < minLength || yLimit < minLength || xLimit * yLimit < room.size) continue;
 
                 //test placement
@@ -105,7 +110,6 @@ public class GPEngine {
 
                     this.roundToAdjacentBB(boundingBox, a.directionFacing, a.room.getBoundingBox());
                     a.neighborTopLeft.ifPresent(n -> {
-                        AutoGP.log("Rounded: ", room.name);
                         GPEngine.this.roundToAdjacentBB(boundingBox, a.side, n.getBoundingBox());
                     });
 
@@ -116,43 +120,190 @@ public class GPEngine {
             }
         }
 
-        for(RoomComponent r : components) {
-            AutoGP.log(r.getName(), r.getBoundingBox());
-        }
+
 
         //generate interior & furniture
 
-        List<RoomComponent> hallways = this.components.stream().filter(c -> c.room.type == RoomType.HALLWAY)
-                .collect(Collectors.toList());
-
-
-        /*
-        for(int i = 0; i < this.components.size(); i++) {
-            List<Connection> connections = new ArrayList<>();
-            RoomComponent roomComponent = this.components.get(i);
-
+        ListMultimap<RoomComponent, Connection> connections = ArrayListMultimap.create();
+        for(RoomComponent r : components) {
             for (RoomComponent r2 : this.components) {
-                if(roomComponent != r2) {
-                    connections.add(Connection.getConnection(roomComponent, r2));
+                if(r != r2) {
+                    Connection c = Connection.getConnection(r, r2);
+                    if(c != null) connections.put(r, c);
+                }
+            }
+        }
+
+        List<RoomComponent> hallways = this.components.stream().filter(c -> c.room.type == RoomType.HALLWAY).collect(Collectors.toList());
+        Optional<RoomComponent> optStart = hallways.stream().findFirst();
+        List<RoomComponent> connected = new ArrayList<>();
+        List<RoomComponent> toConnect = new ArrayList<>(this.components);
+
+        for(RoomComponent room : this.components) {
+            room.addChild(WallComponent.create(room, connections, "wall", ++componentIdCounter));
+        }
+
+        //Try connect all hallways
+        if(optStart.isPresent()) {
+            connected.add(optStart.get());
+            toConnect.remove(optStart.get());
+            hallways.remove(optStart.get());
+
+            boolean found = true;
+
+            while(found) {
+                found = false;
+                for(int i = 0; i < connected.size(); i++) {
+                    RoomComponent h = connected.get(i);
+                    for(Connection c : connections.get(h)) {
+                        if(Math.abs(c.start() - c.end()) < 1) continue;
+
+                        if(hallways.contains(c.roomComponent())) {
+                            connected.add(c.roomComponent());
+                            toConnect.remove(c.roomComponent());
+                            hallways.remove(c.roomComponent());
+                            createDoor(h, c);
+                            found = true;
+                        }
+                    }
                 }
             }
 
-            if(i == 0) {
-                //place entrance door
-                Direction freeSide = null;
-                for(Direction d : Direction.values()) {
-                    if(connections.stream().noneMatch(c -> c.getSide() == d)) {
-                        freeSide = d;
+
+            if(hallways.size() != 0) { //if not all hallways could be connected, generate new
+                generate(rand.nextLong());
+                return;
+            }
+
+        } else {
+            optStart = this.components.stream().filter(c -> c.room.type == RoomType.LIVING_ROOM).findFirst();
+
+            if(optStart.isPresent()) {
+                connected.add(optStart.get());
+                toConnect.remove(optStart.get());
+            } else {
+                connected.add(toConnect.get(0));
+                toConnect.remove(0);
+            }
+        }
+
+        //connect living room and bathroom
+        for(int i = 0; i < toConnect.size(); i++) {
+            RoomComponent r = toConnect.get(i);
+            if(r.room.type == RoomType.LIVING_ROOM || r.room.type == RoomType.BATH_ROOM) {
+                boolean found = false;
+                for(Connection c : connections.get(r)) {
+                    if(Math.abs(c.start() - c.end()) < 1) continue;
+
+                    if(c.roomComponent().room.type == RoomType.HALLWAY) {
+                        connected.add(r);
+                        toConnect.remove(r);
+                        createDoor(r, c);
+                        found = true;
+                        break;
                     }
                 }
 
-                if(freeSide == null) {
-                    //regenerate
-                } else {
-                    //add door
+                //room couldn't be connected!
+                if(!found) {
+                    this.generate(rand.nextLong());
+                    return;
+                }
+            }
+        }
+
+        //connect remaining rooms
+        for(int i = 0; i < toConnect.size(); i++) {
+            RoomComponent r = toConnect.get(i);
+            boolean found = false;
+            for(Connection c : connections.get(r)) {
+                if(Math.abs(c.start() - c.end()) < 1) continue;
+
+                if(c.roomComponent().room.type == RoomType.HALLWAY || c.roomComponent().room.type == RoomType.LIVING_ROOM) {
+                    connected.add(r);
+                    createDoor(r, c);
+                    found = true;
+                    break;
+                }
+            }
+
+            //room couldn't be connected!
+            if(!found) {
+                this.generate(rand.nextLong());
+                return;
+            }
+
+        }
+
+        for(RoomComponent roomComponent : this.components) {
+            roomComponent.getWallComponent().getConnections().sort(Comparator.comparingDouble(c -> c.start()));
+        }
+
+        /*
+        final int furniteSpawnTries = 5;
+
+        for(RoomComponent roomComponent : this.components) {
+            roomComponent.getWallComponent().getConnections().sort(Comparator.comparingDouble(c -> c.start()));
+
+            //add furniture
+            furnitureLoop:
+            for(FurnitureItem item : roomComponent.room.furniture) {
+                List<Direction> directions = new ArrayList<>(List.of(Direction.values()));
+                Collections.shuffle(directions, rand);
+
+                for(Direction side : directions) {
+                    spawnTries:
+                    for(int i = 0; i < furniteSpawnTries; i++) {
+                        double a = side == Direction.EAST ? roomComponent.getBoundingBox().x2 - WallComponent.INNER_WALL_THICKNESS :
+                                roomComponent.getBoundingBox().x + WallComponent.INNER_WALL_THICKNESS;
+                        double b = side == Direction.SOUTH ? roomComponent.getBoundingBox().y2 - WallComponent.INNER_WALL_THICKNESS :
+                                roomComponent.getBoundingBox().y + WallComponent.INNER_WALL_THICKNESS;
+
+                        BoundingBox bb;
+
+                        if(side.isHorizontal()) {
+                            double d = rand.nextDouble() * (roomComponent.getBoundingBox().getHeight() - item.getHeight());
+                            bb = new BoundingBox(a, b + d, a + item.getWidth(),b + d + item.getHeight());
+                        } else {
+                            double d = rand.nextDouble() * (roomComponent.getBoundingBox().getWidth() - item.getWidth());
+                            bb = new BoundingBox(a + d, b, a + d + item.getWidth(), b + item.getHeight());
+                        }
+
+                        //check collisions
+                        for(PlanComponent c : roomComponent.getChildren()) {
+                            if(c instanceof InteractableComponent) {
+                                if(((InteractableComponent) c).getBoundingBox().intersects(bb)) {
+                                    continue spawnTries;
+                                }
+                            }
+                        }
+
+                        FurnitureComponent furnitureComponent = new FurnitureComponent(bb, side, item, ++componentIdCounter);
+                        roomComponent.addChild(furnitureComponent);
+                        continue furnitureLoop;
+                    }
                 }
             }
         }*/
+    }
+
+    private void createDoor(RoomComponent component, Connection c) {
+        final double prefWallDistance = 0.25 + WallComponent.INNER_WALL_THICKNESS;
+        final double doorWidth = 0.75;
+        double start, end;
+
+        double d1 = c.start();
+        double d2 = c.side().isHorizontal() ? component.getBoundingBox().getHeight() - c.end() : component.getBoundingBox().getWidth() - c.end();
+
+        if(d1 <= d2) {
+            start = d1 + prefWallDistance;
+            end = d1 + doorWidth + prefWallDistance;
+        } else {
+            start = (c.side().isHorizontal() ? component.getBoundingBox().getHeight() : component.getBoundingBox().getWidth()) - d2 - doorWidth - prefWallDistance;
+            end = (c.side().isHorizontal() ? component.getBoundingBox().getHeight() : component.getBoundingBox().getWidth()) - d2 - prefWallDistance;
+        }
+
+        component.addChild(DoorComponent.create(component, start, end, c.side(), "door", ++componentIdCounter));
     }
 
     private BoundingBox getRandomBB(Random rand, float minRatio, double size) {

@@ -4,6 +4,8 @@ import com.hhuebner.autogp.core.InputHandler;
 
 public class Utility {
 
+    private static final double EPSILON = 0.000001;
+
     public static Pair<String, String> splitFilename(String filename) {
         int i = filename.lastIndexOf(".");
         return new Pair(filename.substring(0, i), filename.substring((i + 1)));
@@ -15,5 +17,9 @@ public class Utility {
 
     public static double calcPixels(double value, InputHandler inputHandler) {
         return value * inputHandler.displayUnit.factor * inputHandler.globalScale;
+    }
+
+    public static boolean epsEquals(double a, double b) {
+        return a == b ? true : Math.abs(a - b) < EPSILON;
     }
 }

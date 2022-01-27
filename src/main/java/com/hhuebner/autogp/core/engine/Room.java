@@ -39,6 +39,7 @@ public class Room {
 
         public Builder setType(RoomType type) {
             this.type = type;
+            this.furniture = new ArrayList<>(type.defaultFurniture);
             return this;
         }
 

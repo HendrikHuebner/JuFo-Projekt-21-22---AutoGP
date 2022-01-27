@@ -1,30 +1,35 @@
 package com.hhuebner.autogp.controllers;
 
+import com.hhuebner.autogp.AutoGP;
 import com.hhuebner.autogp.core.InputHandler;
+import com.hhuebner.autogp.core.component.FurnitureComponent;
+import com.hhuebner.autogp.core.component.furniture.FurnitureItem;
 import com.hhuebner.autogp.core.engine.GPEngine;
 import com.hhuebner.autogp.core.engine.Room;
 import com.hhuebner.autogp.core.util.Unit;
 import com.hhuebner.autogp.core.util.UnitSq;
 import com.hhuebner.autogp.core.util.Utility;
+import javafx.beans.property.ReadOnlyStringWrapper;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.Scene;
-import javafx.scene.control.ChoiceBox;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 
+import java.util.Random;
 import java.util.function.Supplier;
 
 
 public class MainSceneController {
+
+    private static final Random seedGen = new Random();
 
     private final Supplier<Scene> roomEditorScene;
 
@@ -51,6 +56,15 @@ public class MainSceneController {
         //TableView
         nameCol.setCellValueFactory(new PropertyValueFactory("name"));
         sizeCol.setCellValueFactory(new PropertyValueFactory("size"));
+        furnitureCol.setCellValueFactory((param -> {
+            StringBuilder sb = new StringBuilder();
+            for(FurnitureItem fi : param.getValue().furniture) {
+                sb.append(fi.getName());
+                sb.append(" ");
+            }
+
+            return new ReadOnlyStringWrapper(sb.toString());
+        }));
 
         //Choice boxes
         ObservableList<Unit> units = FXCollections.observableArrayList(Unit.values());
@@ -83,7 +97,9 @@ public class MainSceneController {
 
     @FXML
     public void onGenerate(ActionEvent event) {
-        this.engine.generate();
+        long seed = seedGen.nextLong();
+        AutoGP.log(seed);
+        this.engine.generate(seed);
     }
 
     @FXML
@@ -117,5 +133,8 @@ public class MainSceneController {
 
     public void onClickRulerTool(ActionEvent actionEvent) {
         this.inputHandler.setTool(InputHandler.Tool.RULER);
+    }
+
+    public void onSetArea(KeyEvent keyEvent) {
     }
 }
