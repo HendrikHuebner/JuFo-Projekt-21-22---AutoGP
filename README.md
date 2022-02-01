@@ -1,4 +1,4 @@
 # AutoGP
 
-My project for the annual "Jugend Forscht" competition. Automatically generates a simple architectural Ground plan 
-based on user input.
+My project for the annual "Jugend Forscht" competition. Automatically generates a simple architectural Ground plans 
+based on user input. 
