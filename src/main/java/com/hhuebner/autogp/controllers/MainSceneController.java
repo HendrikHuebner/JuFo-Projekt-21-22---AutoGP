@@ -2,7 +2,6 @@ package com.hhuebner.autogp.controllers;
 
 import com.hhuebner.autogp.AutoGP;
 import com.hhuebner.autogp.core.InputHandler;
-import com.hhuebner.autogp.core.component.FurnitureComponent;
 import com.hhuebner.autogp.core.component.furniture.FurnitureItem;
 import com.hhuebner.autogp.core.engine.GPEngine;
 import com.hhuebner.autogp.core.engine.Room;
@@ -10,7 +9,6 @@ import com.hhuebner.autogp.core.util.Unit;
 import com.hhuebner.autogp.core.util.UnitSq;
 import com.hhuebner.autogp.core.util.Utility;
 import javafx.beans.property.ReadOnlyStringWrapper;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -97,7 +95,7 @@ public class MainSceneController {
 
     @FXML
     public void onGenerate(ActionEvent event) {
-        long seed = 8938812119956866356l;//seedGen.nextLong();
+        long seed = 4506221084904126773l; //seedGen.nextLong();
         AutoGP.log(seed);
         this.engine.generate(seed);
     }

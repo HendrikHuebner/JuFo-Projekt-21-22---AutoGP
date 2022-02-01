@@ -1,6 +1,8 @@
-package com.hhuebner.autogp.core;
+package com.hhuebner.autogp.ui.widgets;
 
+import com.hhuebner.autogp.core.InputHandler;
 import com.hhuebner.autogp.core.component.InteractableComponent;
+import com.hhuebner.autogp.core.engine.ImageLoader;
 import com.hhuebner.autogp.core.util.Unit;
 import com.hhuebner.autogp.core.util.Utility;
 import javafx.scene.control.Label;

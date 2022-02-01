@@ -11,4 +11,7 @@ module com.hhuebner.autogp {
     exports com.hhuebner.autogp;
     exports com.hhuebner.autogp.controllers;
     exports com.hhuebner.autogp.core to javafx.fxml;
+    exports com.hhuebner.autogp.options to javafx.fxml;
+    exports com.hhuebner.autogp.ui to javafx.fxml;
+    exports com.hhuebner.autogp.ui.widgets to javafx.fxml;
 }

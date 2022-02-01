@@ -4,6 +4,7 @@ import com.hhuebner.autogp.core.InputHandler;
 import com.hhuebner.autogp.core.engine.BoundingBox;
 import com.hhuebner.autogp.core.util.Direction;
 import com.hhuebner.autogp.core.util.Utility;
+import com.hhuebner.autogp.options.OptionsHandler;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.ArcType;
@@ -27,7 +28,7 @@ public class DoorComponent extends InteractableComponent {
     public static DoorComponent create(RoomComponent component, double start, double end, Direction side, String name, long id) {
         double a = side == Direction.EAST ? component.bb.x2 : component.bb.x;
         double b = side == Direction.SOUTH ? component.bb.y2 : component.bb.y;
-        double clearance = (end - start) * 1.5;
+        double clearance = (end - start) * OptionsHandler.INSTANCE.doorClearanceFactor.get();
 
         BoundingBox bb;
         boolean openingLeft;
@@ -37,8 +38,13 @@ public class DoorComponent extends InteractableComponent {
             bb = new BoundingBox(a, b + start, a + clearance,b + end);
         } else {
             openingLeft = start < component.bb.getWidth() - end ^ side == Direction.SOUTH;
-            bb = new BoundingBox(a + start, b + clearance, a + end, b);
+            bb = new BoundingBox(a + start, b , a + end, b + clearance);
         }
+
+        if(side == Direction.SOUTH)
+            bb.move(0, -bb.getHeight());
+        if(side == Direction.EAST)
+            bb.move(-bb.getWidth(), 0);
 
         return new DoorComponent(bb, side, openingLeft, name, id);
     }
@@ -49,16 +55,27 @@ public class DoorComponent extends InteractableComponent {
         double width = side.isHorizontal() ? this.bb.y2 - this.bb.y : this.bb.x2 - this.bb.x;
 
         ctx.save();
-        ctx.setStroke(Color.RED);
-        double sx = Utility.calcPixels(bb.x, handler) * CELL_SIZE;
-        double sy = Utility.calcPixels(bb.y, handler) * CELL_SIZE;
+        double scaledX = Utility.calcPixels(bb.x, handler) * CELL_SIZE;
+        double scaledY = Utility.calcPixels(bb.y, handler) * CELL_SIZE;
         double scaledW = Utility.calcPixels(this.bb.getWidth() , handler) * CELL_SIZE;
         double scaledH = Utility.calcPixels(this.bb.getHeight(), handler) * CELL_SIZE;
-        ctx.strokeRect(sx, sy, scaledW, scaledH);
+
+        if(OptionsHandler.INSTANCE.showDoorHitBoxes.get()) {
+            ctx.setStroke(Color.RED);
+            ctx.strokeRect(scaledX, scaledY, scaledW, scaledH);
+        }
+
+        if(this.side == Direction.EAST)
+            scaledX += scaledW;
+
+        if(this.side == Direction.SOUTH) {
+            scaledX += scaledW;
+            scaledY += scaledH;
+        }
 
         ctx.setStroke(Color.BLACK);
         ctx.setLineWidth(4);
-        ctx.translate(Utility.calcPixels(side == Direction.SOUTH ? this.bb.x2 : this.bb.x, handler) * CELL_SIZE, Utility.calcPixels(this.bb.y, handler) * CELL_SIZE);
+        ctx.translate(scaledX, scaledY);
         ctx.rotate(side.angle);
 
         if(!openingLeft) {
@@ -74,11 +91,13 @@ public class DoorComponent extends InteractableComponent {
         }
 
         if(!openingLeft) ctx.scale(-1, 1);
-        double scaledX = Utility.calcPixels(- width, handler) * CELL_SIZE;
-        double scaledY = Utility.calcPixels(WallComponent.INNER_WALL_THICKNESS - width, handler) * CELL_SIZE;
+
         double scaledR = Utility.calcPixels(2 * width, handler) * CELL_SIZE;
 
-        ctx.strokeArc(scaledX, scaledY, scaledR, scaledR, 270, 90, ArcType.ROUND);
+        ctx.strokeArc(side.isHorizontal() ? -scaledH : -scaledW, (side.isHorizontal() ? -scaledH : -scaledW)
+                + Utility.calcPixels(OptionsHandler.INSTANCE.innerWallWidth.get(), handler) * CELL_SIZE,
+
+                scaledR, scaledR, 270, 90, ArcType.ROUND);
         ctx.restore();
     }
 

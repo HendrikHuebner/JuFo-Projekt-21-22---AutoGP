@@ -6,10 +6,10 @@ import com.hhuebner.autogp.core.component.furniture.FurnitureItems;
 import java.util.List;
 
 public enum RoomType {
-    LIVING_ROOM("Wohnzimmer", 1.0f/2.0f, true, List.of(FurnitureItems.ARMCHAIR, FurnitureItems.SINGLE_BED)),
+    LIVING_ROOM("Wohnzimmer", 1.0f/2.0f, true, List.of(FurnitureItems.ARMCHAIR, FurnitureItems.COUCH, FurnitureItems.DINING_TABLE, FurnitureItems.CABINET)),
     BATH_ROOM("Badezimmer", 2.0f/5.0f, false, List.of(FurnitureItems.SINK, FurnitureItems.SHOWER, FurnitureItems.TOILET)),
     KITCHEN("Küche", 1.0f/2.0f, false, List.of(FurnitureItems.SINK)),
-    BED_ROOM("Schlafzimmer", 1.0f/2.0f, true, List.of(FurnitureItems.SINGLE_BED, FurnitureItems.WARDROBE)),
+    BED_ROOM("Schlafzimmer", 1.0f/2.0f, true, List.of(FurnitureItems.SINGLE_BED, FurnitureItems.CABINET)),
     HALLWAY("Flur", 1.0f/3.0f, false, List.of()),
     GENERIC_HABITABLE("Aufenthaltsraum", 1.0f/2.0f, true, List.of());
 

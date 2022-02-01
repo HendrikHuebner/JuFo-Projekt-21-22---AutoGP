@@ -4,6 +4,7 @@ import com.hhuebner.autogp.AutoGP;
 import com.hhuebner.autogp.core.component.PlanComponent;
 import com.hhuebner.autogp.core.engine.GPEngine;
 import com.hhuebner.autogp.core.engine.ImageLoader;
+import com.hhuebner.autogp.ui.symbols.SymbolRenderer;
 import javafx.scene.image.Image;
 
 import java.util.List;
@@ -11,24 +12,27 @@ import java.util.List;
 public class FurnitureItem {
 
     private final String name;
-    private final Image image;
-    private final String path;
     private final boolean cornerGenerating;
+    private final SymbolRenderer renderer;
+    private final double width;
+    private final double height;
 
-    public FurnitureItem(String name, String path, boolean cornerGenerating) {
+    public FurnitureItem(String name, double width, double height, boolean cornerGenerating, SymbolRenderer renderer) {
         this.name = name;
-        this.path = path;
+        this.width = width;
+        this.height = height;
         this.cornerGenerating = cornerGenerating;
+        this.renderer = renderer;
 
-        //Load image
+        /*
         this.image = ImageLoader.INSTANCE.getOrLoad(path + ".png");
         if(this.image == null || this.image.isError()) {
             AutoGP.warn("Failed to load image for ", this.path, "!");
-        }
+        }*/
     }
 
-    public FurnitureItem(String name, String path) {
-        this(name, path, false);
+    public FurnitureItem(String name, double width, double height, SymbolRenderer renderer) {
+        this(name, width, height, false, renderer);
     }
 
     public boolean isCornerGenerating() {
@@ -39,15 +43,15 @@ public class FurnitureItem {
         return name;
     }
 
-    public Image getImage() {
-        return image;
+    public SymbolRenderer getRenderer() {
+        return this.renderer;
     }
 
     public double getWidth() {
-        return this.image.getWidth() / 100.0;
+        return this.width;
     }
 
     public double getHeight() {
-        return this.image.getHeight() / 100.0;
+        return this.height;
     }
 }

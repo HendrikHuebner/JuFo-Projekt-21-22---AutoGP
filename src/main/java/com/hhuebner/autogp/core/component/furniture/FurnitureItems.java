@@ -1,16 +1,19 @@
 package com.hhuebner.autogp.core.component.furniture;
 
+import com.hhuebner.autogp.ui.symbols.*;
+import com.hhuebner.autogp.ui.symbols.SingleBedRenderer;
+
 public class FurnitureItems {
 
-    public static final FurnitureItem TOILET = new FurnitureItem("Toilette", "toilet");
-    public static final FurnitureItem BATH_TUB = new FurnitureItem("Badewanne", "bath_tub", true);
-    public static final FurnitureItem SINK = new FurnitureItem("Waschbecken", "sink");
-    public static final FurnitureItem SHOWER = new FurnitureItem("Dusche", "shower", true);
+    public static final FurnitureItem TOILET = new FurnitureItem("Toilette", 0.35, 0.58, new ToiletRenderer());
+    public static final FurnitureItem BATH_TUB = new FurnitureItem("Badewanne", 0, 0, new CabinetRenderer());
+    public static final FurnitureItem SINK = new FurnitureItem("Waschbecken", 0.5, 0.35, new SinkRenderer());
+    public static final FurnitureItem SHOWER = new FurnitureItem("Dusche", 1.0, 1.0, true, new ShowerRenderer());
     
-    public static final FurnitureItem ARMCHAIR = new FurnitureItem("Sessel", "armchair");
-    public static final FurnitureItem SINGLE_BED = new FurnitureItem("Einzelbett", "single_bed");
-    public static final FurnitureItem DOUBLE_BED = new FurnitureItem("Doppelbett", "double_bed");
-    public static final FurnitureItem DINING_TABLE = new FurnitureItem("Esstisch", "dining_table");
-    public static final FurnitureItem WARDROBE = new FurnitureItem("Schrank", "cabinet");
-    public static final FurnitureItem COUCH = new FurnitureItem("Sofa", "couch");
+    public static final FurnitureItem ARMCHAIR = new FurnitureItem("Sessel", 0.95, 0.8, new ArmchairRenderer());
+    public static final FurnitureItem SINGLE_BED = new FurnitureItem("Einzelbett", 1.0, 2.0, new SingleBedRenderer());
+    public static final FurnitureItem DOUBLE_BED = new FurnitureItem("Doppelbett", 2.0, 2.0, new CabinetRenderer());
+    public static final FurnitureItem DINING_TABLE = new FurnitureItem("Esstisch", 0, 0, new CabinetRenderer());
+    public static final FurnitureItem CABINET = new FurnitureItem("Schrank", 1.0, 0.60, new CabinetRenderer());
+    public static final FurnitureItem COUCH = new FurnitureItem("Sofa", 1.95, 0.8, new CouchRenderer());
 }

@@ -1,6 +1,6 @@
 package com.hhuebner.autogp.controllers;
 
-import com.hhuebner.autogp.core.InformationLabel;
+import com.hhuebner.autogp.ui.widgets.InformationLabel;
 import com.hhuebner.autogp.core.InputHandler;
 import com.hhuebner.autogp.core.component.InteractableComponent;
 import com.hhuebner.autogp.core.engine.GPEngine;

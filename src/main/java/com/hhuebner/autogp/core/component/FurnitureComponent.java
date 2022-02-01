@@ -1,6 +1,9 @@
 package com.hhuebner.autogp.core.component;
 
 import com.hhuebner.autogp.core.InputHandler;
+import com.hhuebner.autogp.core.component.InteractableComponent;
+import com.hhuebner.autogp.core.component.PlanComponent;
+import com.hhuebner.autogp.core.component.RoomComponent;
 import com.hhuebner.autogp.core.component.furniture.FurnitureItem;
 import com.hhuebner.autogp.core.engine.BoundingBox;
 import com.hhuebner.autogp.core.engine.Room;
@@ -45,14 +48,11 @@ public class FurnitureComponent extends InteractableComponent {
             scaledY += scaledH;
         }
 
-        ctx.translate(scaledX, scaledY );
+        ctx.translate(scaledX, scaledY);
 
         ctx.rotate(facing.angle);
-        ctx.drawImage(this.item.getImage(), 0, 0, scaledW, scaledH);
-
-
-
-
+        this.item.getRenderer().render(ctx, item,0, 0, scaledW, scaledH);
+        //ctx.drawImage(this.item.getImage(), 0, 0, scaledW, scaledH);
         ctx.restore();
     }
 

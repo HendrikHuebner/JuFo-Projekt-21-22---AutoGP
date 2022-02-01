@@ -7,6 +7,7 @@ import com.hhuebner.autogp.core.engine.Connection;
 import com.hhuebner.autogp.core.engine.RoomType;
 import com.hhuebner.autogp.core.util.Direction;
 import com.hhuebner.autogp.core.util.Utility;
+import com.hhuebner.autogp.options.OptionsHandler;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.ArcType;
@@ -17,8 +18,6 @@ import static com.hhuebner.autogp.core.engine.GPEngine.CELL_SIZE;
 
 public class WallComponent extends PlanComponent {
 
-    public static final double INNER_WALL_THICKNESS = 0.1;
-    public static final double OUTER_WALL_THICKNESS = 0.2;
     private static Map<RoomType, Color> typeColors = new HashMap<>();
 
     static {
@@ -121,6 +120,8 @@ public class WallComponent extends PlanComponent {
             }
         }
 
+        final double OUTER_WALL_THICKNESS = OptionsHandler.INSTANCE.outerWallWidth.get();
+
         double l = 0.0;
         if(shortenL) {
             l -= OUTER_WALL_THICKNESS;
@@ -143,7 +144,9 @@ public class WallComponent extends PlanComponent {
     }
 
     private void drawInnerWall(GraphicsContext ctx, RoomComponent component, InputHandler handler) {
+        final double INNER_WALL_THICKNESS = OptionsHandler.INSTANCE.innerWallWidth.get();
         BoundingBox bb = component.getBoundingBox();
+
         double scaledX = Utility.calcPixels( bb.x + INNER_WALL_THICKNESS, handler) * CELL_SIZE;
         double scaledY = Utility.calcPixels(bb.y + INNER_WALL_THICKNESS, handler) * CELL_SIZE;
         double scaledW = Utility.calcPixels(bb.getWidth() - 2 * INNER_WALL_THICKNESS, handler) * CELL_SIZE;

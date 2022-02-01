@@ -1,15 +1,12 @@
 package com.hhuebner.autogp.ui;
 
 import com.hhuebner.autogp.core.InputHandler;
-import com.hhuebner.autogp.core.Options;
 import com.hhuebner.autogp.core.component.InteractableComponent;
 import com.hhuebner.autogp.core.component.PlanComponent;
 import com.hhuebner.autogp.core.component.RoomComponent;
-import com.hhuebner.autogp.core.engine.BoundingBox;
 import com.hhuebner.autogp.core.engine.GPEngine;
-import com.hhuebner.autogp.core.engine.ImageLoader;
-import com.hhuebner.autogp.core.engine.Room;
 import com.hhuebner.autogp.core.util.Utility;
+import com.hhuebner.autogp.options.OptionsHandler;
 import javafx.animation.AnimationTimer;
 import javafx.geometry.VPos;
 import javafx.scene.canvas.Canvas;
@@ -46,7 +43,7 @@ public class CanvasRenderer extends AnimationTimer {
         ctx.save();
         ctx.transform(this.cam.getTransform());
 
-        if(Options.showGrid)
+        if(OptionsHandler.INSTANCE.showGrid.get())
             drawGrid(ctx);
 
         for(RoomComponent roomComponent : engine.getComponents()) {
@@ -64,45 +61,14 @@ public class CanvasRenderer extends AnimationTimer {
         }
 
         ctx.restore();
-        drawGridNumbers(ctx);
+
+        if(OptionsHandler.INSTANCE.showNumbers.get())
+            drawGridNumbers(ctx);
 
         if(inputHandler.getTool() == InputHandler.Tool.SELECTION && inputHandler.hasSelection()) {
             this.drawSelectionBox(ctx, inputHandler.getSelection());
         }
     }
-
-    /*
-    @Deprecated
-    private void drawMeasurements(GraphicsContext ctx, InteractableComponent component) {
-        BoundingBox bb = component.getBoundingBox();
-        final int textOffset = 6;
-
-        ctx.save();
-        ctx.setStroke(Color.BLUE);
-        ctx.setLineWidth(1.0 / cam.getScaleX());
-        ctx.strokeLine(bb.x, bb.y, 0, bb.y);
-        ctx.strokeLine(bb.x, bb.y2, 0, bb.y2);
-        ctx.strokeLine(bb.x, bb.y2, bb.x, this.canvas.getHeight());
-        ctx.strokeLine(bb.x2, bb.y2, bb.x2, this.canvas.getHeight());
-
-        ctx.setLineWidth(4.0/cam.getScaleX());
-        ctx.strokeLine(0, bb.y,0, bb.y2);
-        ctx.strokeLine(bb.x, this.canvas.getHeight(), bb.x2, this.canvas.getHeight());
-
-        ctx.setTextAlign(TextAlignment.CENTER);
-        ctx.setTextBaseline(VPos.TOP);
-
-        ctx.fillText(String.format("%.2f%s", Utility.pixelsToUnit(bb.getWidth(), this.inputHandler) / CELL_SIZE,
-                this.inputHandler.scalingUnit.second.name),bb.x / 2 + bb.x2 / 2, this.canvas.getHeight() + textOffset);
-
-        ctx.setTextAlign(TextAlignment.RIGHT);
-        ctx.setTextBaseline(VPos.CENTER);
-
-        ctx.fillText(String.format("%.2f%s", Utility.pixelsToUnit(bb.getHeight(), this.inputHandler) / CELL_SIZE,
-                        this.inputHandler.scalingUnit.second.name), -textOffset, bb.y / 2 + bb.y2 / 2);
-
-        ctx.restore();
-    }*/
 
     @Deprecated
     private void drawSelectionBox(GraphicsContext ctx, double[] selection) {
@@ -157,15 +123,12 @@ public class CanvasRenderer extends AnimationTimer {
 
         ctx.save();
         ctx.setStroke(Color.GRAY);
-        ctx.setTextBaseline(VPos.CENTER);
-        ctx.setTextAlign(TextAlignment.RIGHT);
-        ctx.setLineWidth(1.0/this.cam.getScaleX());
-        ctx.setFont(new Font("Arial", 9));
 
-        //Thick lines and measurements
+        //Thick lines
         for(int i = 0; i < cellCountX; i++) {
             ctx.strokeLine(startX + i * CELL_SIZE, startY, startX + i * CELL_SIZE, startY + lengthY);
         }
+
         for(int i = 0; i < cellCountY; i++) {
             ctx.strokeLine(startX, startY + i * CELL_SIZE, startX + lengthX, startY  + i * CELL_SIZE);
         }
@@ -177,12 +140,14 @@ public class CanvasRenderer extends AnimationTimer {
                 ctx.strokeLine(x, startY, x, startY + lengthY);
             }
         }
+
         for(int i = 0; i < cellCountY; i++) {
             for (int j = 1; j < 5; j++) {
                 double y = startY + i * CELL_SIZE + j * CELL_SIZE / 5;
                 ctx.strokeLine(startX, y, startX + lengthX, y);
             }
         }
+
         ctx.restore();
     }
 }
