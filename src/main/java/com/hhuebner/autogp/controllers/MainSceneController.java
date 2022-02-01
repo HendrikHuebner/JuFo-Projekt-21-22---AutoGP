@@ -97,7 +97,7 @@ public class MainSceneController {
 
     @FXML
     public void onGenerate(ActionEvent event) {
-        long seed = seedGen.nextLong();
+        long seed = 8938812119956866356l;//seedGen.nextLong();
         AutoGP.log(seed);
         this.engine.generate(seed);
     }
@@ -135,6 +135,16 @@ public class MainSceneController {
         this.inputHandler.setTool(InputHandler.Tool.RULER);
     }
 
-    public void onSetArea(KeyEvent keyEvent) {
+    public void onSetArea(KeyEvent event) {
+        String string = ((TextField)event.getSource()).getText();
+        double value = 100.0;
+        try {
+            value = Double.parseDouble(string);
+        }
+        catch(NumberFormatException e) {}
+        finally {
+            value = Utility.convertUnitSq(value, this.inputUnitChoiceBaseArea.getValue(), UnitSq.METRES); //internally, everything is in metres
+            this.engine.gpSize = value;
+        }
     }
 }

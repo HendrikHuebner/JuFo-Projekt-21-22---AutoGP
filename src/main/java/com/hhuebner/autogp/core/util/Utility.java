@@ -15,6 +15,10 @@ public class Utility {
         return n * input.factor / output.factor;
     }
 
+    public static double convertUnitSq(double n, UnitSq input, UnitSq output) {
+        return n * input.factor / output.factor;
+    }
+
     public static double calcPixels(double value, InputHandler inputHandler) {
         return value * inputHandler.displayUnit.factor * inputHandler.globalScale;
     }

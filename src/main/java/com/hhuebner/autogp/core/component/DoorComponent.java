@@ -27,15 +27,17 @@ public class DoorComponent extends InteractableComponent {
     public static DoorComponent create(RoomComponent component, double start, double end, Direction side, String name, long id) {
         double a = side == Direction.EAST ? component.bb.x2 : component.bb.x;
         double b = side == Direction.SOUTH ? component.bb.y2 : component.bb.y;
+        double clearance = (end - start) * 1.5;
+
         BoundingBox bb;
         boolean openingLeft;
 
         if(side.isHorizontal()) {
             openingLeft = start < component.bb.getHeight() - end ^ side == Direction.WEST;
-            bb = new BoundingBox(a, b + start, a,b + end);
+            bb = new BoundingBox(a, b + start, a + clearance,b + end);
         } else {
             openingLeft = start < component.bb.getWidth() - end ^ side == Direction.SOUTH;
-            bb = new BoundingBox(a + start, b, a + end, b);
+            bb = new BoundingBox(a + start, b + clearance, a + end, b);
         }
 
         return new DoorComponent(bb, side, openingLeft, name, id);
@@ -47,6 +49,12 @@ public class DoorComponent extends InteractableComponent {
         double width = side.isHorizontal() ? this.bb.y2 - this.bb.y : this.bb.x2 - this.bb.x;
 
         ctx.save();
+        ctx.setStroke(Color.RED);
+        double sx = Utility.calcPixels(bb.x, handler) * CELL_SIZE;
+        double sy = Utility.calcPixels(bb.y, handler) * CELL_SIZE;
+        double scaledW = Utility.calcPixels(this.bb.getWidth() , handler) * CELL_SIZE;
+        double scaledH = Utility.calcPixels(this.bb.getHeight(), handler) * CELL_SIZE;
+        ctx.strokeRect(sx, sy, scaledW, scaledH);
 
         ctx.setStroke(Color.BLACK);
         ctx.setLineWidth(4);

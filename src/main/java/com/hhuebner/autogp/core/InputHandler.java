@@ -25,10 +25,11 @@ public class InputHandler {
     public Optional<Point2D> dragStart = Optional.empty();
     public Optional<Point2D> dragEnd = Optional.empty();
     public Unit displayUnit = Unit.METRES;
+    public double globalScale = 1.0;
     private Tool tool = Tool.MOVE;
     private Optional<InteractableComponent> selected = Optional.empty();
     private Optional<DragMode> selectedDragMode = Optional.empty();
-    public double globalScale = 1.0;
+
 
     public InputHandler(Supplier<Scene> scene, GPEngine engine) {
         this.scene = scene;

@@ -13,11 +13,12 @@ public class FurnitureItem {
     private final String name;
     private final Image image;
     private final String path;
-    private boolean isValid = false;
+    private final boolean cornerGenerating;
 
-    public FurnitureItem(String name, String path) {
+    public FurnitureItem(String name, String path, boolean cornerGenerating) {
         this.name = name;
         this.path = path;
+        this.cornerGenerating = cornerGenerating;
 
         //Load image
         this.image = ImageLoader.INSTANCE.getOrLoad(path + ".png");
@@ -26,12 +27,12 @@ public class FurnitureItem {
         }
     }
 
-    public boolean validate(List<PlanComponent> components) {
-        return isValid;
+    public FurnitureItem(String name, String path) {
+        this(name, path, false);
     }
 
-    public boolean isValid() {
-        return isValid;
+    public boolean isCornerGenerating() {
+        return cornerGenerating;
     }
 
     public String getName() {

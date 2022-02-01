@@ -37,8 +37,8 @@
                   <HBox layoutX="10.0" layoutY="10.0" prefHeight="7.0" prefWidth="176.0">
                      <children>
                         <Label prefHeight="17.0" prefWidth="78.0" text="Grundfläche:" />
-                        <TextField onKeyTyped="#onSetArea" prefHeight="25.0" prefWidth="60.0" />
-                        <ChoiceBox fx:id="inputUnitChoiceBaseArea" prefHeight="25.0" prefWidth="42.0" />
+                        <TextField text="100" onKeyTyped="#onSetArea" prefHeight="25.0" prefWidth="60.0" />
+                        <ChoiceBox fx:id="inputUnitChoiceBaseArea"  prefHeight="25.0" prefWidth="42.0" />
                      </children>
                   </HBox>
                   <HBox prefHeight="7.0" prefWidth="176.0">
