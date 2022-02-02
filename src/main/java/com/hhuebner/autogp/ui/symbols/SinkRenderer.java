@@ -18,7 +18,5 @@ public class SinkRenderer extends SymbolRenderer {
 
         ctx.strokeArc(22, 9, 6, 6, 0, 360, ArcType.OPEN);
         ctx.strokeArc(6, 6, 38, 23, 0, 360, ArcType.OPEN);
-        ctx.strokeLine(25, 0, 25, 17);
-        ctx.strokeLine(20, 12, 30, 12);
     }
 }

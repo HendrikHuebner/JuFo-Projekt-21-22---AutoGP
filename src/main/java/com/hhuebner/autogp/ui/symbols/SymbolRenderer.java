@@ -10,7 +10,7 @@ public abstract class SymbolRenderer {
         ctx.save();
         ctx.translate(x, y);
         ctx.scale(w / item.getWidth() / 100, h / item.getHeight() / 100);
-        ctx.setLineWidth(1);//OptionsHandler.INSTANCE.furnitureLineWidth.get());
+        ctx.setLineWidth(OptionsHandler.INSTANCE.furnitureLineWidth.get());
         this.drawSymbol(ctx);
         ctx.restore();
     }

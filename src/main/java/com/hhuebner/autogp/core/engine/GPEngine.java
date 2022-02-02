@@ -270,7 +270,8 @@ public class GPEngine {
                             roomComponent.getBoundingBox().y + INNER_WALL_THICKNESS;
 
                     if (item.isCornerGenerating()) {
-                        bb = new BoundingBox(a, b, a + item.getWidth(), b + item.getHeight());
+                        bb = new BoundingBox(a, b, a + (side.isHorizontal() ? item.getHeight() : item.getWidth()),
+                                b + (side.isHorizontal() ? item.getWidth() : item.getHeight()));
                         if (side == Direction.SOUTH) bb.move(0, -bb.getHeight());
                         if (side == Direction.EAST) bb.move(-bb.getWidth(), 0);
 
