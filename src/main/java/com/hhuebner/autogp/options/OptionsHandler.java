@@ -26,6 +26,7 @@ public class OptionsHandler {
     public Option<Double> doorClearanceFactor = register(new DoubleOption("doorClearanceFactor", 1.5));
 
     //GENERATION ALGORITHM
+    public Option<Integer> generationTryLimit = register(new IntOption("generationTryLimit", 5000));
     public Option<Boolean> generateFurniture = register(new BoolOption("generateFurniture", true));
     public Option<Boolean> generateDoors = register(new BoolOption("generateDoors", true));
     public Option<Boolean> generateWindows = register(new BoolOption("generateWindows", true));

@@ -68,7 +68,7 @@ public abstract class InteractableComponent extends PlanComponent {
     }
 
     public String getDescription(InputHandler handler) {
-        return String.format("Object name: %s  width: %.2f%s  height %.2f%s", this.name,
+        return String.format("Objektname: %s  Breite: %.2f%s  Höhe %.2f%s", this.name,
                 Utility.convertUnit(bb.getWidth(), Unit.METRES, handler.displayUnit), handler.displayUnit,
                 Utility.convertUnit(bb.getHeight(), Unit.METRES, handler.displayUnit), handler.displayUnit);
     }

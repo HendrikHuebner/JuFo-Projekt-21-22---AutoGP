@@ -41,7 +41,13 @@ public class GPEngine {
         this.rooms.add(new Room.Builder().setType(RoomType.KITCHEN).setSize(15.0).build());
     }
 
-    public void generate(long seed) {
+    /**
+     * Attempts to generate a ground plan, return true if successful.
+     *
+     * @param seed
+     * @return
+     */
+    public boolean generate(long seed) {
         Random rand = new Random(seed);
         this.components.clear();
         this.componentIdCounter = 0;
@@ -61,8 +67,9 @@ public class GPEngine {
 
         roomAdd:
         for(Room room : roomsLeft) {
-            double maxLength = Math.sqrt(room.size / room.type.minRatio);
-            double minLength = Math.sqrt(room.size * room.type.minRatio);
+            double minLength = Math.max(OptionsHandler.INSTANCE.minimumRoomWidth.get(),
+                    Math.sqrt(room.size * room.type.minRatio));
+            double maxLength = room.size / minLength;
 
             //gather anchor points
             List<AnchorPoint> anchors = new ArrayList<>();
@@ -108,6 +115,7 @@ public class GPEngine {
                     if(a.directionFacing.dy + a.side.dy < 0) boundingBox.move(0, -boundingBox.getHeight());
 
                     this.roundToAdjacentBB(boundingBox, a.directionFacing, a.room.getBoundingBox());
+
                     a.neighborTopLeft.ifPresent(n -> {
                         GPEngine.this.roundToAdjacentBB(boundingBox, a.side, n.getBoundingBox());
                     });
@@ -119,10 +127,7 @@ public class GPEngine {
             }
         }
 
-
-
         //generate interior & furniture
-
         ListMultimap<RoomComponent, Connection> connections = ArrayListMultimap.create();
         for(RoomComponent r : components) {
             for (RoomComponent r2 : this.components) {
@@ -168,10 +173,8 @@ public class GPEngine {
                 }
             }
 
-
             if(hallways.size() != 0) { //if not all hallways could be connected, generate new
-                generate(rand.nextLong());
-                return;
+                return false;
             }
 
         } else {
@@ -205,8 +208,7 @@ public class GPEngine {
 
                 //room couldn't be connected!
                 if(!found) {
-                    this.generate(rand.nextLong());
-                    return;
+                    return false;
                 }
             }
         }
@@ -231,8 +233,7 @@ public class GPEngine {
 
             //room couldn't be connected!
             if(!found) {
-                this.generate(rand.nextLong());
-                return;
+                return false;
             }
 
         }
@@ -244,6 +245,8 @@ public class GPEngine {
         if(OptionsHandler.INSTANCE.generateFurniture.get()) {
             this.generateFurniture(rand);
         }
+
+        return true; //yay
     }
 
     private void generateFurniture(Random rand) {
@@ -363,6 +366,10 @@ public class GPEngine {
         }
 
         if(Math.abs(d) < OptionsHandler.INSTANCE.roomSizeRoundingThreshold.get()) {
+            if(facing.isHorizontal() && Math.abs(toRound.getWidth() - d) < OptionsHandler.INSTANCE.minimumRoomWidth.get() ||
+               !facing.isHorizontal() && Math.abs(toRound.getHeight() - d) < OptionsHandler.INSTANCE.minimumRoomWidth.get())
+                return;
+
             switch(facing) {
                 case NORTH -> toRound.y = adjacent.y;
                 case SOUTH -> toRound.y2 = adjacent.y2;

@@ -26,8 +26,8 @@
          <top>
             <MenuBar BorderPane.alignment="CENTER">
               <menus>
-                <Menu mnemonicParsing="false" text="File" />
-                <Menu mnemonicParsing="false" text="Settings">
+                <Menu mnemonicParsing="false" text="Datei" />
+                <Menu mnemonicParsing="false" text="Einstellungen">
                      <items>
                         <Menu mnemonicParsing="false" text="UI">
                           <items>
@@ -48,7 +48,7 @@
                         </Menu>
                      </items>
                 </Menu>
-                <Menu mnemonicParsing="false" text="Help">
+                <Menu mnemonicParsing="false" text="Hilfe">
                   <items>
                     <MenuItem mnemonicParsing="false" text="About" />
                   </items>

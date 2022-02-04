@@ -8,6 +8,7 @@ import com.hhuebner.autogp.core.engine.Room;
 import com.hhuebner.autogp.core.util.Unit;
 import com.hhuebner.autogp.core.util.UnitSq;
 import com.hhuebner.autogp.core.util.Utility;
+import com.hhuebner.autogp.options.OptionsHandler;
 import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -26,8 +27,6 @@ import java.util.function.Supplier;
 
 
 public class MainSceneController {
-
-    private static final Random seedGen = new Random();
 
     private final Supplier<Scene> roomEditorScene;
 
@@ -95,9 +94,25 @@ public class MainSceneController {
 
     @FXML
     public void onGenerate(ActionEvent event) {
-        long seed = 4506221084904126773l; //seedGen.nextLong();
-        AutoGP.log(seed);
-        this.engine.generate(seed);
+        Random seedGen = new Random();
+
+        int limit = OptionsHandler.INSTANCE.generationTryLimit.get();
+        long start = System.currentTimeMillis();
+        int tries = 0;
+        long seed = 0;
+        for(int j = 0; j < 300; j++) {
+            for (int i = 0; i < limit; i++) {
+                seed = seedGen.nextLong();
+                if (this.engine.generate(seed)) {
+                    tries += i + 1;
+                    //AutoGP.logf("Successfully generated after %d iterations using %d as seed", i, seed);
+                    break;
+                }
+            }
+        }
+        long finish = System.currentTimeMillis();
+        long timeElapsed = finish - start;
+        AutoGP.log("seed:", seed, "avg time: ", timeElapsed / 300.0, "avg tries: ", tries / 300.0);
     }
 
     @FXML
