@@ -8,8 +8,8 @@
 <AnchorPane prefWidth="600.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.hhuebner.autogp.controllers.CanvasController">
    <VBox prefHeight="200.0" prefWidth="100.0">
       <children>
-      
-          <Canvas fx:id="canvas" height="400.0" onMouseDragged="#onCanvasMouseDrag" onMousePressed="#onCanvasMousePressed" onMouseReleased="#onCanvasMouseReleased" onScroll="#onCanvasScroll" width="600.0" />
+
+         <Canvas fx:id="canvas" width="552.0" height="355.0" onMouseDragged="#onCanvasMouseDrag" onMousePressed="#onCanvasMousePressed" onMouseReleased="#onCanvasMouseReleased" onScroll="#onCanvasScroll"  />
          <HBox alignment="BOTTOM_LEFT" prefHeight="29.0" prefWidth="600.0" style="-fx-background-color: #D3D3D3;" VBox.vgrow="ALWAYS">
             <children>
                <InformationLabel alignment="BOTTOM_LEFT" maxHeight="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="30.0" prefWidth="598.0" text="" fx:id="infoLabel">

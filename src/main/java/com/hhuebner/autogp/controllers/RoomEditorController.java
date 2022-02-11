@@ -73,7 +73,7 @@ public class RoomEditorController {
             //Add room
             ((Stage) ((Button) event.getSource()).getScene().getWindow()).close();
             this.engine.addRoom(this.roomBuilder.build());
-            this.mainController.get().roomsOverviewTable.getItems().add(0, this.roomBuilder);
+            this.mainController.get().roomsOverviewTable.getItems().add(0, this.roomBuilder.build());
 
         } else {
             AutoGP.log("Can't add room, not all elements have been added", roomBuilder.type, roomBuilder.size);

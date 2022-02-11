@@ -1,6 +1,7 @@
 package com.hhuebner.autogp.core.util;
 
 import com.hhuebner.autogp.core.InputHandler;
+import com.hhuebner.autogp.core.engine.BoundingBox;
 
 public class Utility {
 
@@ -25,5 +26,15 @@ public class Utility {
 
     public static boolean epsEquals(double a, double b) {
         return a == b ? true : Math.abs(a - b) < EPSILON;
+    }
+
+    /**
+     * Returns the area of a room.
+     * @param bb BoundingBox of room
+     * @param ww inner wall width of room
+     * @return
+     */
+    public static double getRoomArea(BoundingBox bb, double ww) {
+        return (bb.getHeight() - 2 * ww) * (bb.getWidth() - 2 * ww);
     }
 }

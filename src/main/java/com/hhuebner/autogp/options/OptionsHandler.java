@@ -9,6 +9,7 @@ public class OptionsHandler {
 
     public static final OptionsHandler INSTANCE = new OptionsHandler();
 
+
     private List<Option<?>> options = new ArrayList<>();
 
     //CANVAS UI
@@ -31,9 +32,11 @@ public class OptionsHandler {
     public Option<Boolean> generateDoors = register(new BoolOption("generateDoors", true));
     public Option<Boolean> generateWindows = register(new BoolOption("generateWindows", true));
     public Option<Double> minimumRoomWidth = register(new DoubleOption("minimumRoomWidth", 1.4));
-
     public Option<Double> roomSizeRoundingThreshold = register(new DoubleOption("roomSizeRoundingThreshold", 0.75));
     public Option<Integer> furnitureSpawnTries = register(new IntOption("furnitureSpawnTries", 10));
+    public Option<Double> windowHeight = register(new DoubleOption("windowHeight", 1.0));
+    public Option<Double> bathroomWindowWidth =  register(new DoubleOption("bathroomWindowWidth", 0.3));
+    //ROOM PROPORTIONS
 
     //DEFAULT PARAMETERS
     public Option<Double> defaultGPSize = register(new DoubleOption("defaultGPSize", 100.0));

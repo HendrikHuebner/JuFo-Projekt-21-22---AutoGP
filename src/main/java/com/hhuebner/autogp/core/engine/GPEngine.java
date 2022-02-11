@@ -7,6 +7,7 @@ import com.hhuebner.autogp.core.component.*;
 import com.hhuebner.autogp.core.component.FurnitureComponent;
 import com.hhuebner.autogp.core.component.furniture.FurnitureItem;
 import com.hhuebner.autogp.core.util.Direction;
+import com.hhuebner.autogp.core.util.Utility;
 import com.hhuebner.autogp.options.OptionsHandler;
 
 import java.util.*;
@@ -27,18 +28,17 @@ public class GPEngine {
         this.mainController = mainController;
 
         //test room config
+        this.rooms.add(new Room.Builder().setType(RoomType.HALLWAY).build());
 
-        this.rooms.add(new Room.Builder().setType(RoomType.HALLWAY).setSize(15.0).build());
+        this.rooms.add(new Room.Builder().setType(RoomType.LIVING_ROOM).build());
 
-        this.rooms.add(new Room.Builder().setType(RoomType.LIVING_ROOM).setSize(25.0).build());
+        this.rooms.add(new Room.Builder().setType(RoomType.BED_ROOM).build());
+        this.rooms.add(new Room.Builder().setType(RoomType.BED_ROOM).build());
 
-        this.rooms.add(new Room.Builder().setType(RoomType.BED_ROOM).setSize(20.0).build());
-        this.rooms.add(new Room.Builder().setType(RoomType.BED_ROOM).setSize(15.0).build());
+        this.rooms.add(new Room.Builder().setType(RoomType.BATH_ROOM).build());
+        this.rooms.add(new Room.Builder().setType(RoomType.BATH_ROOM).build());
 
-        this.rooms.add(new Room.Builder().setType(RoomType.BATH_ROOM).setSize(5).build());
-        this.rooms.add(new Room.Builder().setType(RoomType.BATH_ROOM).setSize(5).build());
-
-        this.rooms.add(new Room.Builder().setType(RoomType.KITCHEN).setSize(15.0).build());
+        this.rooms.add(new Room.Builder().setType(RoomType.KITCHEN).build());
     }
 
     /**
@@ -249,6 +249,25 @@ public class GPEngine {
         return true; //yay
     }
 
+    private void generateWindows(Random rand, ListMultimap<RoomComponent, Connection> connections) {
+        final double windowHeight = OptionsHandler.INSTANCE.windowHeight.get();
+        final double wallWidth = OptionsHandler.INSTANCE.innerWallWidth.get();
+
+        for (RoomComponent roomComponent : this.components) {
+            final double totalWindowWidth = roomComponent.room.type == RoomType.BATH_ROOM ?
+                    OptionsHandler.INSTANCE.bathroomWindowWidth.get() : Utility.getRoomArea(roomComponent.getBoundingBox(), wallWidth) / windowHeight;
+
+            List<Direction> freeSides = new ArrayList<>(List.of(Direction.values()));
+
+            for(Connection c : connections.get(roomComponent)) {
+                freeSides.remove(c.side());
+            }
+
+            if(freeSides.size() == 0) return;
+
+        }
+    }
+
     private void generateFurniture(Random rand) {
         final int furnitureSpawnTries = OptionsHandler.INSTANCE.furnitureSpawnTries.get();
         final double INNER_WALL_THICKNESS = OptionsHandler.INSTANCE.innerWallWidth.get();
@@ -258,6 +277,7 @@ public class GPEngine {
 
             List<FurnitureItem> sortedFurniture = new ArrayList<>(roomComponent.room.furniture);
             sortedFurniture.sort(Comparator.comparing(f -> !f.isCornerGenerating()));
+
             //add furniture
             furnitureLoop:
             for (FurnitureItem item : sortedFurniture) {
@@ -290,12 +310,12 @@ public class GPEngine {
                         furnitureSpawnTries:
                         for (int i = 0; i < furnitureSpawnTries; i++) {
                             if (side.isHorizontal()) {
-                                double d = rand.nextDouble() * (roomComponent.getBoundingBox().getHeight() - item.getWidth() - 3 * INNER_WALL_THICKNESS);
+                                double d = rand.nextDouble() * (roomComponent.getBoundingBox().getHeight() - item.getHeight() - 3 * INNER_WALL_THICKNESS);
                                 bb = new BoundingBox(a, b + d, a + item.getHeight(), b + d + item.getWidth());
 
                                 if (side == Direction.EAST) bb.move(-bb.getWidth(), 0);
                             } else {
-                                double d = rand.nextDouble() * (roomComponent.getBoundingBox().getWidth() - item.getHeight() - 3 * INNER_WALL_THICKNESS);
+                                double d = rand.nextDouble() * (roomComponent.getBoundingBox().getWidth() - item.getWidth() - 3 * INNER_WALL_THICKNESS);
                                 bb = new BoundingBox(a + d, b, a + d + item.getWidth(), b + item.getHeight());
 
                                 if (side == Direction.SOUTH) bb.move(0, -bb.getHeight());
@@ -375,6 +395,28 @@ public class GPEngine {
                 case SOUTH -> toRound.y2 = adjacent.y2;
                 case EAST -> toRound.x2 = adjacent.x2;
                 case WEST -> toRound.x = adjacent.x;
+            }
+        }
+    }
+
+    public void calculateRoomSizes() {
+        double sum = 0;
+        int count = 0;
+
+        for(Room room : this.rooms) {
+            if (room.size == 0) {
+                count++;
+                sum += room.type.defaultSize;
+            } else {
+                sum += room.size;
+            }
+        }
+
+        for(Room room : this.rooms) {
+            if(room.size == 0) {
+                room.size = Math.round(10 * (room.type.defaultSize + (this.gpSize - sum) / count)) / 10;
+
+                this.mainController.get().roomsOverviewTable.refresh();
             }
         }
     }

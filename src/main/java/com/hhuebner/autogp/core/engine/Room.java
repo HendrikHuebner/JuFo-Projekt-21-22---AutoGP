@@ -63,7 +63,7 @@ public class Room {
         }
 
         public boolean canBuild() {
-            return type != null && size != 0;
+            return type != null;
         }
 
         public Room build() {

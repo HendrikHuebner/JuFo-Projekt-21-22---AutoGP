@@ -34,7 +34,7 @@ public class MainSceneController {
     @FXML public ChoiceBox<Unit> inputUnitChoice;
     @FXML public ChoiceBox<UnitSq> inputUnitChoiceBaseArea;
     @FXML public ChoiceBox<Unit> outputUnitChoice;
-    @FXML public TableView roomsOverviewTable;
+    @FXML public TableView<Room> roomsOverviewTable;
     @FXML private TableColumn<Room, String> nameCol;
     @FXML private TableColumn<Room, String> sizeCol;
     @FXML private TableColumn<Room, String> furnitureCol;
@@ -100,6 +100,9 @@ public class MainSceneController {
         long start = System.currentTimeMillis();
         int tries = 0;
         long seed = 0;
+
+        this.engine.calculateRoomSizes();
+
         for(int j = 0; j < 300; j++) {
             for (int i = 0; i < limit; i++) {
                 seed = seedGen.nextLong();
