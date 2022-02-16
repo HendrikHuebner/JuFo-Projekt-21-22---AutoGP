@@ -1,6 +1,5 @@
 package com.hhuebner.autogp;
 
-import com.hhuebner.autogp.controllers.CanvasController;
 import com.hhuebner.autogp.controllers.MainSceneController;
 import com.hhuebner.autogp.controllers.RoomEditorController;
 import com.hhuebner.autogp.core.ControllerFactory;
@@ -15,7 +14,6 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 
 public class AutoGP extends Application {
 
@@ -30,9 +28,7 @@ public class AutoGP extends Application {
         InputHandler inputHandler = new InputHandler(() -> this.mainScene, engine);
         ControllerFactory mainCF = new ControllerFactory();
 
-        mainCF.registerController(MainSceneController.class, new MainSceneController(inputHandler, () -> this.roomEditorScene, engine));
-        CanvasController canvasController = mainCF.registerController(CanvasController.class,
-                new CanvasController(camera, inputHandler, engine));
+        mainCF.registerController(MainSceneController.class, new MainSceneController(inputHandler, () -> this.roomEditorScene, engine, camera));
 
         mainLoader = new FXMLLoader(getClass().getResource("auto_gp.fxml"));
         mainCF.setControllers(mainLoader);
@@ -43,7 +39,7 @@ public class AutoGP extends Application {
         roomEditorCF.setControllers(roomEditorLoader);
 
         Parent mainRoot = mainLoader.load();
-        Scene main = new Scene(mainRoot, 880, 455);
+        Scene main = new Scene(mainRoot, 834, 555);
         this.mainScene = main;
 
         Parent roomEditorRoot = roomEditorLoader.load();
@@ -57,7 +53,7 @@ public class AutoGP extends Application {
 
         engine.onSceneLoad();
 
-        CanvasRenderer canvasRenderer = new CanvasRenderer(canvasController.canvas, inputHandler, engine, camera);
+        CanvasRenderer canvasRenderer = new CanvasRenderer(((MainSceneController)mainLoader.getController()).canvas, inputHandler, engine, camera);
         canvasRenderer.start();
     }
 

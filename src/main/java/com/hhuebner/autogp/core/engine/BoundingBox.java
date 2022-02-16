@@ -1,5 +1,8 @@
 package com.hhuebner.autogp.core.engine;
 
+import com.hhuebner.autogp.core.util.Direction;
+import com.hhuebner.autogp.options.OptionsHandler;
+
 public class BoundingBox {
 
     public static final BoundingBox EMPTY = new BoundingBox(0, 0, 0, 0);
@@ -64,6 +67,30 @@ public class BoundingBox {
         this.y += dy;
         this.x2 += dx;
         this.y2 += dy;
+    }
+
+    void roundToAdjacentBB(Direction facing, BoundingBox adjacent) {
+        //find adjacent side
+        double d = 0.0;
+        switch(facing) {
+            case NORTH -> d = adjacent.y - this.y;
+            case SOUTH -> d = adjacent.y2 - this.y2;
+            case EAST -> d = adjacent.x2 - this.x2;
+            case WEST -> d = adjacent.x - this.x;
+        }
+
+        if(Math.abs(d) < OptionsHandler.INSTANCE.roomSizeRoundingThreshold.get()) {
+            if(facing.isHorizontal() && Math.abs(this.getWidth() - d) < OptionsHandler.INSTANCE.minimumRoomWidth.get() ||
+                    !facing.isHorizontal() && Math.abs(this.getHeight() - d) < OptionsHandler.INSTANCE.minimumRoomWidth.get())
+                return;
+
+            switch(facing) {
+                case NORTH -> this.y = adjacent.y;
+                case SOUTH -> this.y2 = adjacent.y2;
+                case EAST -> this.x2 = adjacent.x2;
+                case WEST -> this.x = adjacent.x;
+            }
+        }
     }
 
     public double getWidth() {

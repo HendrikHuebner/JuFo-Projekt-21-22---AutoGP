@@ -5,6 +5,7 @@ import com.hhuebner.autogp.core.component.InteractableComponent;
 import com.hhuebner.autogp.core.component.PlanComponent;
 import com.hhuebner.autogp.core.component.RoomComponent;
 import com.hhuebner.autogp.core.engine.GPEngine;
+import com.hhuebner.autogp.core.engine.GroundPlan;
 import com.hhuebner.autogp.core.util.Utility;
 import com.hhuebner.autogp.options.OptionsHandler;
 import javafx.animation.AnimationTimer;
@@ -12,7 +13,6 @@ import javafx.geometry.VPos;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 import javafx.scene.text.TextAlignment;
 
 import static com.hhuebner.autogp.core.engine.GPEngine.CELL_SIZE;
@@ -46,8 +46,12 @@ public class CanvasRenderer extends AnimationTimer {
         if(OptionsHandler.INSTANCE.showGrid.get())
             drawGrid(ctx);
 
-        for(RoomComponent roomComponent : engine.getComponents()) {
-            roomComponent.render(ctx, inputHandler);
+        GroundPlan selected = engine.getSelectedGP();
+
+        if(selected != null) {
+            for (RoomComponent roomComponent : selected.components) {
+                roomComponent.render(ctx, inputHandler);
+            }
         }
 
         if(inputHandler.getSelectedComponent().isPresent()) {

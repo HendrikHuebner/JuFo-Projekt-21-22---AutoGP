@@ -7,9 +7,10 @@ import com.hhuebner.autogp.core.component.RoomComponent;
 import com.hhuebner.autogp.core.engine.BoundingBox;
 import com.hhuebner.autogp.core.engine.DragMode;
 import com.hhuebner.autogp.core.engine.GPEngine;
-import com.hhuebner.autogp.core.util.Pair;
 import com.hhuebner.autogp.core.util.Unit;
 import com.hhuebner.autogp.core.util.Utility;
+import com.hhuebner.autogp.options.OptionsHandler;
+import com.hhuebner.autogp.ui.widgets.GroundPlanTab;
 import javafx.geometry.Point2D;
 import javafx.scene.Scene;
 
@@ -26,6 +27,8 @@ public class InputHandler {
     public Optional<Point2D> dragEnd = Optional.empty();
     public Unit displayUnit = Unit.METRES;
     public double globalScale = 1.0;
+    public double gpSize = OptionsHandler.INSTANCE.defaultGPSize.get();
+
     private Tool tool = Tool.MOVE;
     private Optional<InteractableComponent> selected = Optional.empty();
     private Optional<DragMode> selectedDragMode = Optional.empty();
@@ -79,7 +82,7 @@ public class InputHandler {
         double mouseX = mouseXAbsolute / (this.displayUnit.factor * GPEngine.CELL_SIZE * globalScale);
         double mouseY = mouseYAbsolute / (this.displayUnit.factor * GPEngine.CELL_SIZE * globalScale);
 
-        for(RoomComponent roomComponent : this.engine.getComponents()) {
+        for(RoomComponent roomComponent : this.engine.getSelectedGP().components) {
             AutoGP.log(roomComponent.getName(), roomComponent.getBoundingBox());
             for(PlanComponent component : roomComponent.getChildren()) {
                 if(component instanceof InteractableComponent) {
@@ -103,7 +106,7 @@ public class InputHandler {
 
             return true;
         } else {
-            this.selected = Optional.empty();
+            this.clearSelectedComponent();
             return false;
         }
     }
@@ -145,7 +148,7 @@ public class InputHandler {
     public void handleSelection(double x1, double y1, double x2, double y2) {
     }
 
-    public void clearSelection() {
+    public void clearSelectionBox() {
         dragEnd = Optional.empty();
         dragStart = Optional.empty();
     }
@@ -153,6 +156,15 @@ public class InputHandler {
     public double[] getSelection() {
         return new double[]{this.dragStart.get().getX(), this.dragStart.get().getY(),
                 this.dragEnd.get().getX(), this.dragEnd.get().getY()};
+    }
+
+    public void closeTab(GroundPlanTab tab) {
+        this.clearSelectedComponent();
+        this.engine.groundPlanMap.remove(tab.getID());
+    }
+
+    public void clearSelectedComponent() {
+        this.selected = Optional.empty();
     }
 
     public static enum Tool {

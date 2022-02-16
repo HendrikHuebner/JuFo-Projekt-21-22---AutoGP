@@ -4,11 +4,13 @@ import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.hhuebner.autogp.controllers.MainSceneController;
 import com.hhuebner.autogp.core.component.*;
-import com.hhuebner.autogp.core.component.FurnitureComponent;
 import com.hhuebner.autogp.core.component.furniture.FurnitureItem;
 import com.hhuebner.autogp.core.util.Direction;
 import com.hhuebner.autogp.core.util.Utility;
 import com.hhuebner.autogp.options.OptionsHandler;
+import com.hhuebner.autogp.ui.widgets.GroundPlanTab;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 
 import java.util.*;
 import java.util.function.Supplier;
@@ -18,11 +20,9 @@ public class GPEngine {
 
     public static final int CELL_SIZE = 150;
 
-    private int componentIdCounter = 0;
-    private final List<RoomComponent> components = new ArrayList<>();
-    private final List<Room> rooms = new ArrayList<>();
-    public double gpSize = OptionsHandler.INSTANCE.defaultGPSize.get();
     private final Supplier<MainSceneController> mainController;
+    public final Map<Integer, GroundPlan> groundPlanMap = new HashMap<>();
+    public final ObservableList<Room> rooms = FXCollections.observableArrayList();
 
     public GPEngine(Supplier<MainSceneController> mainController) {
         this.mainController = mainController;
@@ -42,15 +42,15 @@ public class GPEngine {
     }
 
     /**
-     * Attempts to generate a ground plan, return true if successful.
+     * Attempts to generate a ground plan, return null if unsuccessful.
      *
      * @param seed
      * @return
      */
-    public boolean generate(long seed) {
+    public GroundPlan generate(int id, String name, double gpSize, long seed) {
         Random rand = new Random(seed);
-        this.components.clear();
-        this.componentIdCounter = 0;
+        
+        GroundPlan gp = new GroundPlan(name, id, gpSize);
 
         List<Room> roomsLeft = new ArrayList<>(this.rooms);
 
@@ -58,12 +58,12 @@ public class GPEngine {
         Room root = roomsLeft.get(0);
         roomsLeft.remove(0);
         RoomComponent rootComponent = new RoomComponent(root,
-                getRandomBB(rand, root.type.minRatio, root.size), ++componentIdCounter);
+                getRandomBB(rand, root.type.minRatio, root.size), gp.getNextID());
 
-        this.components.add(rootComponent);
+        gp.components.add(rootComponent);
 
         BoundingBox graphBB = new BoundingBox(rootComponent.getBoundingBox());
-        final double maxGraphSide = Math.sqrt(this.gpSize) * OptionsHandler.INSTANCE.graphSizeLimitFactor.get();
+        final double maxGraphSide = Math.sqrt(gp.gpSize) * OptionsHandler.INSTANCE.graphSizeLimitFactor.get();
 
         roomAdd:
         for(Room room : roomsLeft) {
@@ -75,8 +75,8 @@ public class GPEngine {
             List<AnchorPoint> anchors = new ArrayList<>();
             int cornerCount = 0;
 
-            for(RoomComponent component : this.components) {
-                for(AnchorPoint a : component.getAnchors(this.components)) {
+            for(RoomComponent component : gp.components) {
+                for(AnchorPoint a : component.getAnchors(gp.components)) {
                     anchors.add(a);
                     if(a.neighborTopRight.isPresent())
                         cornerCount++;
@@ -106,7 +106,7 @@ public class GPEngine {
                 if(xLimit < minLength || yLimit < minLength || xLimit * yLimit < room.size) continue;
 
                 //test placement
-                if (!this.intersectsAnyPlacedRoom(maxBB)) {
+                if (!gp.intersectsAnyPlacedRoom(maxBB)) {
                     //BoundingBox can be a random size
                     BoundingBox boundingBox = getRandomBB(rand, minLength, room.size, a.getX(), a.getY(), xLimit, yLimit);
                     if(boundingBox == null) continue;
@@ -114,13 +114,13 @@ public class GPEngine {
                     if(a.directionFacing.dx + a.side.dx < 0) boundingBox.move(-boundingBox.getWidth(), 0);
                     if(a.directionFacing.dy + a.side.dy < 0) boundingBox.move(0, -boundingBox.getHeight());
 
-                    this.roundToAdjacentBB(boundingBox, a.directionFacing, a.room.getBoundingBox());
+                    boundingBox.roundToAdjacentBB(a.directionFacing, a.room.getBoundingBox());
 
                     a.neighborTopLeft.ifPresent(n -> {
-                        GPEngine.this.roundToAdjacentBB(boundingBox, a.side, n.getBoundingBox());
+                        boundingBox.roundToAdjacentBB(a.side, n.getBoundingBox());
                     });
 
-                    components.add(new RoomComponent(room, boundingBox, ++componentIdCounter));
+                    gp.components.add(new RoomComponent(room, boundingBox, gp.getNextID()));
                     graphBB.encompass(boundingBox);
                     continue roomAdd;
                 }
@@ -129,8 +129,8 @@ public class GPEngine {
 
         //generate interior & furniture
         ListMultimap<RoomComponent, Connection> connections = ArrayListMultimap.create();
-        for(RoomComponent r : components) {
-            for (RoomComponent r2 : this.components) {
+        for(RoomComponent r : gp.components) {
+            for (RoomComponent r2 : gp.components) {
                 if(r != r2) {
                     Connection c = Connection.getConnection(r, r2);
                     if(c != null) connections.put(r, c);
@@ -138,13 +138,13 @@ public class GPEngine {
             }
         }
 
-        List<RoomComponent> hallways = this.components.stream().filter(c -> c.room.type == RoomType.HALLWAY).collect(Collectors.toList());
+        List<RoomComponent> hallways = gp.components.stream().filter(c -> c.room.type == RoomType.HALLWAY).collect(Collectors.toList());
         Optional<RoomComponent> optStart = hallways.stream().findFirst();
         List<RoomComponent> connected = new ArrayList<>();
-        List<RoomComponent> toConnect = new ArrayList<>(this.components);
+        List<RoomComponent> toConnect = new ArrayList<>(gp.components);
 
-        for(RoomComponent room : this.components) {
-            room.addChild(WallComponent.create(room, connections, "wall", ++componentIdCounter));
+        for(RoomComponent room : gp.components) {
+            room.addChild(WallComponent.create(room, connections, "wall", gp.getNextID()));
         }
 
         //Try connect all hallways
@@ -166,7 +166,7 @@ public class GPEngine {
                             connected.add(c.roomComponent());
                             toConnect.remove(c.roomComponent());
                             hallways.remove(c.roomComponent());
-                            createDoor(h, c);
+                            createDoor(gp, h, c);
                             found = true;
                         }
                     }
@@ -174,11 +174,11 @@ public class GPEngine {
             }
 
             if(hallways.size() != 0) { //if not all hallways could be connected, generate new
-                return false;
+                return null;
             }
 
         } else {
-            optStart = this.components.stream().filter(c -> c.room.type == RoomType.LIVING_ROOM).findFirst();
+            optStart = gp.components.stream().filter(c -> c.room.type == RoomType.LIVING_ROOM).findFirst();
 
             if(optStart.isPresent()) {
                 connected.add(optStart.get());
@@ -200,7 +200,7 @@ public class GPEngine {
                     if(c.roomComponent().room.type == RoomType.HALLWAY) {
                         connected.add(r);
                         toConnect.remove(r);
-                        createDoor(r, c);
+                        createDoor(gp, r, c);
                         found = true;
                         break;
                     }
@@ -208,7 +208,7 @@ public class GPEngine {
 
                 //room couldn't be connected!
                 if(!found) {
-                    return false;
+                    return null;
                 }
             }
         }
@@ -225,7 +225,7 @@ public class GPEngine {
 
                 if(c.roomComponent().room.type == RoomType.HALLWAY || c.roomComponent().room.type == RoomType.LIVING_ROOM) {
                     connected.add(r);
-                    if(generateDoors) createDoor(r, c);
+                    if(generateDoors) createDoor(gp, r, c);
                     found = true;
                     break;
                 }
@@ -233,27 +233,27 @@ public class GPEngine {
 
             //room couldn't be connected!
             if(!found) {
-                return false;
+                return null;
             }
 
         }
 
-        for(RoomComponent roomComponent : this.components) {
+        for(RoomComponent roomComponent : gp.components) {
             roomComponent.getWallComponent().getConnections().sort(Comparator.comparingDouble(c -> c.start()));
         }
 
         if(OptionsHandler.INSTANCE.generateFurniture.get()) {
-            this.generateFurniture(rand);
+            this.generateFurniture(gp, rand);
         }
 
-        return true; //yay
+        return gp; //yay
     }
 
-    private void generateWindows(Random rand, ListMultimap<RoomComponent, Connection> connections) {
+    private void generateWindows(GroundPlan gp, Random rand, ListMultimap<RoomComponent, Connection> connections) {
         final double windowHeight = OptionsHandler.INSTANCE.windowHeight.get();
         final double wallWidth = OptionsHandler.INSTANCE.innerWallWidth.get();
 
-        for (RoomComponent roomComponent : this.components) {
+        for (RoomComponent roomComponent : gp.components) {
             final double totalWindowWidth = roomComponent.room.type == RoomType.BATH_ROOM ?
                     OptionsHandler.INSTANCE.bathroomWindowWidth.get() : Utility.getRoomArea(roomComponent.getBoundingBox(), wallWidth) / windowHeight;
 
@@ -268,11 +268,11 @@ public class GPEngine {
         }
     }
 
-    private void generateFurniture(Random rand) {
+    private void generateFurniture(GroundPlan gp, Random rand) {
         final int furnitureSpawnTries = OptionsHandler.INSTANCE.furnitureSpawnTries.get();
         final double INNER_WALL_THICKNESS = OptionsHandler.INSTANCE.innerWallWidth.get();
 
-        for(RoomComponent roomComponent : this.components) {
+        for(RoomComponent roomComponent : gp.components) {
             roomComponent.getWallComponent().getConnections().sort(Comparator.comparingDouble(c -> c.start()));
 
             List<FurnitureItem> sortedFurniture = new ArrayList<>(roomComponent.room.furniture);
@@ -336,7 +336,7 @@ public class GPEngine {
                     }
 
                     if (bb != null) {
-                        FurnitureComponent furnitureComponent = new FurnitureComponent(bb, side, item, ++componentIdCounter);
+                        FurnitureComponent furnitureComponent = new FurnitureComponent(bb, side, item, gp.getNextID());
                         roomComponent.addChild(furnitureComponent);
                         continue furnitureLoop;
                     }
@@ -345,7 +345,7 @@ public class GPEngine {
         }
     }
 
-    private void createDoor(RoomComponent component, Connection c) {
+    private void createDoor(GroundPlan gp, RoomComponent component, Connection c) {
         final double prefWallDistance = OptionsHandler.INSTANCE.doorPrefWallDistance.get()
                 + OptionsHandler.INSTANCE.innerWallWidth.get();
 
@@ -363,7 +363,7 @@ public class GPEngine {
             end = (c.side().isHorizontal() ? component.getBoundingBox().getHeight() : component.getBoundingBox().getWidth()) - d2 - prefWallDistance;
         }
 
-        component.addChild(DoorComponent.create(component, start, end, c.side(), "door", ++componentIdCounter));
+        component.addChild(DoorComponent.create(component, start, end, c.side(), "door", gp.getNextID()));
     }
 
     private BoundingBox getRandomBB(Random rand, float minRatio, double size) {
@@ -373,33 +373,10 @@ public class GPEngine {
         double width = Math.round(10 * Math.sqrt(size * randRatio)) / 10.0;
         double height = Math.round(10 * Math.sqrt(size / randRatio)) / 10.0;
 
-        return new BoundingBox(0, 0, width, height);    }
-
-    private void roundToAdjacentBB(BoundingBox toRound, Direction facing, BoundingBox adjacent) {
-        //find adjacent side
-        double d = 0.0;
-        switch(facing) {
-            case NORTH -> d = adjacent.y - toRound.y;
-            case SOUTH -> d = adjacent.y2 - toRound.y2;
-            case EAST -> d = adjacent.x2 - toRound.x2;
-            case WEST -> d = adjacent.x - toRound.x;
-        }
-
-        if(Math.abs(d) < OptionsHandler.INSTANCE.roomSizeRoundingThreshold.get()) {
-            if(facing.isHorizontal() && Math.abs(toRound.getWidth() - d) < OptionsHandler.INSTANCE.minimumRoomWidth.get() ||
-               !facing.isHorizontal() && Math.abs(toRound.getHeight() - d) < OptionsHandler.INSTANCE.minimumRoomWidth.get())
-                return;
-
-            switch(facing) {
-                case NORTH -> toRound.y = adjacent.y;
-                case SOUTH -> toRound.y2 = adjacent.y2;
-                case EAST -> toRound.x2 = adjacent.x2;
-                case WEST -> toRound.x = adjacent.x;
-            }
-        }
+        return new BoundingBox(0, 0, width, height);
     }
 
-    public void calculateRoomSizes() {
+    public void calculateRoomSizes(double gpSize) {
         double sum = 0;
         int count = 0;
 
@@ -414,7 +391,7 @@ public class GPEngine {
 
         for(Room room : this.rooms) {
             if(room.size == 0) {
-                room.size = Math.round(10 * (room.type.defaultSize + (this.gpSize - sum) / count)) / 10;
+                room.size = Math.round(10 * (room.type.defaultSize + (gpSize - sum) / count)) / 10;
 
                 this.mainController.get().roomsOverviewTable.refresh();
             }
@@ -435,23 +412,17 @@ public class GPEngine {
         return null;
     }
 
-    private boolean intersectsAnyPlacedRoom(BoundingBox bb) {
-        for(RoomComponent r : this.components) {
-            if(r.getBoundingBox().intersects(bb)) return true;
-        }
-
-        return false;
-    }
-
     public void onSceneLoad() {
-        mainController.get().roomsOverviewTable.getItems().addAll(this.rooms);
+        //mainController.get().roomsOverviewTable.getItems().addAll(gp.rooms);
     }
 
-    public List<RoomComponent> getComponents() {
-        return this.components;
+    public GroundPlan getSelectedGP() {
+        GroundPlanTab t = ((GroundPlanTab)mainController.get().tabPane.getSelectionModel().getSelectedItem());
+        return t == null ? null : this.groundPlanMap.get(t.getID());
     }
 
     public void addRoom(Room room) {
         this.rooms.add(room);
     }
+
 }
