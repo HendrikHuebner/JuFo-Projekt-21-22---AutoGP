@@ -9,20 +9,30 @@ import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.ArcType;
 
-import java.util.List;
-
 import static com.hhuebner.autogp.core.engine.GPEngine.CELL_SIZE;
 
 public class DoorComponent extends InteractableComponent {
 
     private final Direction side;
     private final boolean openingLeft;
+    private final double clearance;
 
-    private DoorComponent(BoundingBox bb, Direction side, boolean openingLeft, String name, long id) {
+    private DoorComponent(BoundingBox bb, Direction side, boolean openingLeft, double clearance, String name, long id) {
         super(bb, name, id);
         
         this.side = side;
         this.openingLeft = openingLeft;
+        this.clearance = clearance;
+
+        BoundingBox voidBB;
+        double d = 0.8;
+        switch(side) {
+            case NORTH -> voidBB = new BoundingBox(bb.x, bb.y - d, bb.x2, bb.y);
+            case SOUTH -> voidBB = new BoundingBox(bb.x, bb.y2, bb.x2, bb.y2 + d);
+            case WEST -> voidBB = new BoundingBox(bb.x - d, bb.y, bb.x, bb.y2);
+            case EAST -> voidBB = new BoundingBox(bb.x2, bb.y, bb.x2 + d, bb.y2);
+            default -> throw new IllegalStateException("Unexpected value: " + side);
+        }
     }
 
     public static DoorComponent create(RoomComponent component, double start, double end, Direction side, String name, long id) {
@@ -41,12 +51,17 @@ public class DoorComponent extends InteractableComponent {
             bb = new BoundingBox(a + start, b , a + end, b + clearance);
         }
 
-        if(side == Direction.SOUTH)
-            bb.move(0, -bb.getHeight());
-        if(side == Direction.EAST)
-            bb.move(-bb.getWidth(), 0);
+        if(side == Direction.EAST) bb.move(-bb.getWidth(), 0);
+        if(side == Direction.SOUTH) bb.move(0, -bb.getHeight());
 
-        return new DoorComponent(bb, side, openingLeft, name, id);
+        switch(side) {
+            case NORTH -> bb.y -= clearance;
+            case SOUTH -> bb.y2 += clearance;
+            case WEST -> bb.x -= clearance;
+            case EAST -> bb.x2 += clearance;
+        }
+
+        return new DoorComponent(bb, side, openingLeft, clearance, name, id);
     }
 
 
@@ -59,6 +74,13 @@ public class DoorComponent extends InteractableComponent {
         double scaledY = Utility.calcPixels(bb.y, handler) * CELL_SIZE;
         double scaledW = Utility.calcPixels(this.bb.getWidth() , handler) * CELL_SIZE;
         double scaledH = Utility.calcPixels(this.bb.getHeight(), handler) * CELL_SIZE;
+        double scaledC = Utility.calcPixels(this.clearance, handler) * CELL_SIZE;
+
+        if(OptionsHandler.INSTANCE.DEBUG) {
+            ctx.setStroke(Color.BLUE);
+            ctx.strokeRect(scaledX, scaledY, scaledW, scaledH);
+            ctx.setStroke(Color.BLACK);
+        }
 
         if(OptionsHandler.INSTANCE.showDoorHitBoxes.get()) {
             ctx.setStroke(Color.RED);
@@ -75,13 +97,14 @@ public class DoorComponent extends InteractableComponent {
 
         ctx.setStroke(Color.BLACK);
         ctx.setLineWidth(4);
+
+
         ctx.translate(scaledX, scaledY);
         ctx.rotate(side.angle);
+        ctx.translate(0, scaledC);
 
         if(!openingLeft) {
-            if(!side.isHorizontal())
-                ctx.translate(Utility.calcPixels(width, handler) * CELL_SIZE, 0);
-            else if (side == Direction.EAST){
+            if(side != Direction.WEST) {
                 ctx.translate(Utility.calcPixels(width, handler) * CELL_SIZE, 0);
             }
         } else {
@@ -99,10 +122,5 @@ public class DoorComponent extends InteractableComponent {
 
                 scaledR, scaledR, 270, 90, ArcType.ROUND);
         ctx.restore();
-    }
-
-    @Override
-    public List<? extends PlanComponent> getChildren() {
-        return null;
     }
 }

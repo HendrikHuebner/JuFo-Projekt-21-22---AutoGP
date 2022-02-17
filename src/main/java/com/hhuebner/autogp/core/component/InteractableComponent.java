@@ -13,7 +13,6 @@ import static com.hhuebner.autogp.core.engine.GPEngine.CELL_SIZE;
 
 public abstract class InteractableComponent extends PlanComponent {
 
-    public boolean locked = false;
     protected BoundingBox bb;
 
     public InteractableComponent(BoundingBox bb, String name, long id) {
@@ -71,5 +70,9 @@ public abstract class InteractableComponent extends PlanComponent {
         return String.format("Objektname: %s  Breite: %.2f%s  Höhe %.2f%s", this.name,
                 Utility.convertUnit(bb.getWidth(), Unit.METRES, handler.displayUnit), handler.displayUnit,
                 Utility.convertUnit(bb.getHeight(), Unit.METRES, handler.displayUnit), handler.displayUnit);
+    }
+
+    public boolean isClickable() {
+        return true;
     }
 }

@@ -133,7 +133,7 @@ public class MainSceneController {
 
         for (int i = 0; i < limit; i++) {
             seed = seedGen.nextLong();
-            GroundPlan gp = this.engine.generate(id,"gp", inputHandler.gpSize, seed);
+            GroundPlan gp = this.engine.generate(id,"gp", inputHandler.gpSize, 235621015467243245l);
 
             if (gp != null) {
                 tries += i + 1;
@@ -212,10 +212,12 @@ public class MainSceneController {
             inputHandler.onCursorClick(mouse.getX(), mouse.getY());
 
             //update information bar
-            Optional<InteractableComponent> component = inputHandler.getSelectedComponent();
-            component.ifPresent(c -> infoLabel.setInformation(c, this.inputHandler));
-
-            if(!component.isPresent()) infoLabel.clear();
+            if(inputHandler.selectedRoom.isPresent()) {
+                InteractableComponent component = inputHandler.selectedComponent.orElse(inputHandler.selectedRoom.get());
+                infoLabel.setInformation(component, this.inputHandler);
+            } else {
+                infoLabel.clear();
+            }
         }
 
         this.prevMousePos = mouse;

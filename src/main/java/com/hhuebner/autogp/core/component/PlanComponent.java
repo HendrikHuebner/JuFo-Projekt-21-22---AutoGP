@@ -3,8 +3,6 @@ package com.hhuebner.autogp.core.component;
 import com.hhuebner.autogp.core.InputHandler;
 import javafx.scene.canvas.GraphicsContext;
 
-import java.util.List;
-
 public abstract class PlanComponent {
 
     protected final String name;
@@ -17,8 +15,6 @@ public abstract class PlanComponent {
 
 
     public abstract void render(GraphicsContext ctx, InputHandler inputHandler);
-
-    public abstract List<? extends PlanComponent> getChildren();
 
     public String getName() {
         return this.name;

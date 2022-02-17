@@ -306,11 +306,12 @@ public class GPEngine {
                                 }
                             }
                         }
+
                     } else {
                         furnitureSpawnTries:
                         for (int i = 0; i < furnitureSpawnTries; i++) {
                             if (side.isHorizontal()) {
-                                double d = rand.nextDouble() * (roomComponent.getBoundingBox().getHeight() - item.getHeight() - 3 * INNER_WALL_THICKNESS);
+                                double d = rand.nextDouble() * (roomComponent.getBoundingBox().getHeight() - item.getWidth() - 3 * INNER_WALL_THICKNESS);
                                 bb = new BoundingBox(a, b + d, a + item.getHeight(), b + d + item.getWidth());
 
                                 if (side == Direction.EAST) bb.move(-bb.getWidth(), 0);

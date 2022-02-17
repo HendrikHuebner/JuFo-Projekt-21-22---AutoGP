@@ -3,12 +3,14 @@ package com.hhuebner.autogp.options;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Properties;
 
 public class OptionsHandler {
 
     public static final OptionsHandler INSTANCE = new OptionsHandler();
-
+    public final boolean DEBUG = false;
 
     private List<Option<?>> options = new ArrayList<>();
 
@@ -16,6 +18,7 @@ public class OptionsHandler {
     public Option<Boolean> showDoorHitBoxes = register(new BoolOption("showDoorHitBoxes", false));
     public Option<Boolean> showGrid = register(new BoolOption("showGrid", true));
     public Option<Boolean> showNumbers = register(new BoolOption("showNumbers", true));
+    public Option<Boolean> colorRooms = register(new BoolOption("colorRooms", true));
     public Option<Double> graphSizeLimitFactor = register(new DoubleOption("graphSizeLimitFactor", 1.4));
     public Option<Integer> furnitureLineWidth = register(new IntOption("furnitureLineWidth", 2));
 

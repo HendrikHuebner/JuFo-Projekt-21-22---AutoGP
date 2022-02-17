@@ -4,18 +4,11 @@ import com.hhuebner.autogp.core.InputHandler;
 import com.hhuebner.autogp.core.engine.AnchorPoint;
 import com.hhuebner.autogp.core.engine.BoundingBox;
 import com.hhuebner.autogp.core.engine.Room;
-import com.hhuebner.autogp.core.engine.RoomType;
 import com.hhuebner.autogp.core.util.Direction;
-import com.hhuebner.autogp.core.util.Utility;
 import javafx.scene.canvas.GraphicsContext;
-import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
-import static com.hhuebner.autogp.core.engine.GPEngine.CELL_SIZE;
 
 public class RoomComponent extends InteractableComponent {
 
@@ -60,5 +53,13 @@ public class RoomComponent extends InteractableComponent {
                 return (WallComponent) c;
         }
         throw new ExceptionInInitializerError();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RoomComponent that = (RoomComponent) o;
+        return this.id == that.id;
     }
 }

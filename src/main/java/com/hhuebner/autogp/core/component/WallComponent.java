@@ -10,9 +10,11 @@ import com.hhuebner.autogp.core.util.Utility;
 import com.hhuebner.autogp.options.OptionsHandler;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.ArcType;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static com.hhuebner.autogp.core.engine.GPEngine.CELL_SIZE;
 
@@ -72,11 +74,6 @@ public class WallComponent extends PlanComponent {
         }
 
         ctx.restore();
-    }
-
-    @Override
-    public List<DoorComponent> getChildren() {
-        return null;
     }
 
     private void outerWallLine(GraphicsContext ctx, InputHandler handler, double x1, double x2, double y1, double y2, Direction side, double start, double end) {
@@ -152,11 +149,19 @@ public class WallComponent extends PlanComponent {
         double scaledW = Utility.calcPixels(bb.getWidth() - 2 * INNER_WALL_THICKNESS, handler) * CELL_SIZE;
         double scaledH = Utility.calcPixels(bb.getHeight() - 2 * INNER_WALL_THICKNESS, handler) * CELL_SIZE;
 
-        ctx.save();
-        ctx.setGlobalAlpha(0.2);
-        ctx.setFill(typeColors.get(component.room.type));
-        ctx.fillRect(scaledX, scaledY, scaledW, scaledH);
-        ctx.restore();
+
+        if(OptionsHandler.INSTANCE.colorRooms.get()) {
+            ctx.save();
+            if (handler.selectedRoom.isPresent()) {
+                ctx.setGlobalAlpha(handler.selectedRoom.get().equals(this.roomComponent) ? 0.5 : 0.2);
+            } else {
+                ctx.setGlobalAlpha(0.2);
+            }
+
+            ctx.setFill(typeColors.get(component.room.type));
+            ctx.fillRect(scaledX, scaledY, scaledW, scaledH);
+            ctx.restore();
+        }
         ctx.strokeRect(scaledX, scaledY, scaledW, scaledH);
     }
 

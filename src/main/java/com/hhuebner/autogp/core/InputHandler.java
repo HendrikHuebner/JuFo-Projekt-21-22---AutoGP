@@ -1,6 +1,5 @@
 package com.hhuebner.autogp.core;
 
-import com.hhuebner.autogp.AutoGP;
 import com.hhuebner.autogp.core.component.InteractableComponent;
 import com.hhuebner.autogp.core.component.PlanComponent;
 import com.hhuebner.autogp.core.component.RoomComponent;
@@ -30,7 +29,9 @@ public class InputHandler {
     public double gpSize = OptionsHandler.INSTANCE.defaultGPSize.get();
 
     private Tool tool = Tool.MOVE;
-    private Optional<InteractableComponent> selected = Optional.empty();
+    public Optional<RoomComponent> selectedRoom = Optional.empty();
+    public Optional<InteractableComponent> selectedComponent = Optional.empty();
+
     private Optional<DragMode> selectedDragMode = Optional.empty();
 
 
@@ -53,8 +54,15 @@ public class InputHandler {
 
     public void onCursorClick(double mouseXAbsolute, double mouseYAbsolute) {
         //Check if a resize box has been clicked
-        if(this.selected.isPresent()) {
-            BoundingBox bb = this.selected.get().getBoundingBox();
+        BoundingBox bb = null;
+
+        if(this.selectedComponent.isPresent()) {
+            bb = this.selectedComponent.get().getBoundingBox();
+        }else if(this.selectedRoom.isPresent()) {
+            bb = this.selectedRoom.get().getBoundingBox();
+        }
+
+        if(bb != null) {
             final double o = 12; //half of the side length of the clickable box
 
             double x = Utility.calcPixels(bb.x, this) * CELL_SIZE;
@@ -82,39 +90,64 @@ public class InputHandler {
         double mouseX = mouseXAbsolute / (this.displayUnit.factor * GPEngine.CELL_SIZE * globalScale);
         double mouseY = mouseYAbsolute / (this.displayUnit.factor * GPEngine.CELL_SIZE * globalScale);
 
-        for(RoomComponent roomComponent : this.engine.getSelectedGP().components) {
-            AutoGP.log(roomComponent.getName(), roomComponent.getBoundingBox());
+        if(this.selectedRoom.isEmpty()) {
+            for(RoomComponent roomComponent : this.engine.getSelectedGP().components) {
+                if (selectComponentAtPoint(roomComponent, mouseX, mouseY)) return;
+            }
+        } else {
+            RoomComponent roomComponent = this.selectedRoom.get();
             for(PlanComponent component : roomComponent.getChildren()) {
                 if(component instanceof InteractableComponent) {
-                    if(selectComponentAtPoint(roomComponent, mouseX, mouseY)) return;
+                    if(!((InteractableComponent) component).isClickable()) continue;
+                    if(selectComponentAtPoint((InteractableComponent) component, mouseX, mouseY)) return;
                 }
             }
 
-            if(selectComponentAtPoint(roomComponent, mouseX, mouseY)) return;
+            this.clearSelectedComponent();
         }
     }
 
     private boolean selectComponentAtPoint(InteractableComponent component, double mouseX, double mouseY) {
-        if (component.getBoundingBox().containsPoint(mouseX, mouseY)) {
-            if (this.selected.isPresent() && this.selected.get().equals(component)) {
-                //if selected component was clicked again, set drag mode to MOVE
-                this.selectedDragMode = Optional.of(DragMode.MOVE);
+        if(this.selectedRoom.isEmpty() && !(component instanceof RoomComponent)) return false;
 
+        if (component.getBoundingBox().containsPoint(mouseX, mouseY)) {
+            if(component instanceof RoomComponent) {
+                this.selectedComponent = Optional.empty();
+
+                if (this.selectedRoom.isPresent() && this.selectedRoom.get().equals(component)) {
+                    //move
+                    this.selectedDragMode = Optional.of(DragMode.MOVE);
+
+                } else {
+                    //select
+                    this.selectedRoom = Optional.of((RoomComponent) component);
+                }
             } else {
-                this.selected = Optional.of(component);
+                //room must be selected already
+                if (this.selectedComponent.isPresent() && this.selectedComponent.get().equals(component)) {
+                    this.selectedDragMode = Optional.of(DragMode.MOVE);
+
+                } else {
+                    this.selectedComponent = Optional.of(component);
+                }
             }
 
             return true;
         } else {
-            this.clearSelectedComponent();
             return false;
         }
     }
 
+    public void clearSelectedComponent() {
+        this.selectedComponent = Optional.empty();
+        this.selectedRoom = Optional.empty();
+    }
+
     public void handleCursorDrag(double startX, double startY, double currentX, double currentY) {
-        if(this.selected.isPresent() && this.selectedDragMode.isPresent()) {
+        if(this.selectedRoom.isPresent() && this.selectedDragMode.isPresent()) {
             DragMode dragMode = this.selectedDragMode.get();
-            InteractableComponent component = this.selected.get();
+            //if component is selected, move it, otherwise move room
+            InteractableComponent component = this.selectedComponent.orElse(this.selectedRoom.get());
             double dxPX = currentX - startX; //in pixels
             double dyPX = currentY - startY;
 
@@ -130,10 +163,6 @@ public class InputHandler {
                 case EAST -> component.getBoundingBox().x2 += dx;
             }
         }
-    }
-
-    public Optional<InteractableComponent> getSelectedComponent() {
-        return this.selected;
     }
 
     // ***** Selection Tool *****
@@ -163,9 +192,6 @@ public class InputHandler {
         this.engine.groundPlanMap.remove(tab.getID());
     }
 
-    public void clearSelectedComponent() {
-        this.selected = Optional.empty();
-    }
 
     public static enum Tool {
         CURSOR,

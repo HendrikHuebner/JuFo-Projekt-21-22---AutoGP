@@ -54,8 +54,8 @@ public class CanvasRenderer extends AnimationTimer {
             }
         }
 
-        if(inputHandler.getSelectedComponent().isPresent()) {
-            PlanComponent component = inputHandler.getSelectedComponent().get();
+        if(inputHandler.selectedRoom.isPresent()) {
+            PlanComponent component = inputHandler.selectedComponent.orElse(inputHandler.selectedRoom.get());
             if(component instanceof InteractableComponent) {
                 ((InteractableComponent) component).renderSelectionOutline(ctx, this.cam, this.inputHandler);
 
