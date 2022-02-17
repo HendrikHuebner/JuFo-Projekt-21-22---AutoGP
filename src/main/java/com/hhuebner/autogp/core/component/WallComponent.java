@@ -1,6 +1,5 @@
 package com.hhuebner.autogp.core.component;
 
-import com.google.common.collect.ListMultimap;
 import com.hhuebner.autogp.core.InputHandler;
 import com.hhuebner.autogp.core.engine.BoundingBox;
 import com.hhuebner.autogp.core.engine.Connection;
@@ -173,11 +172,8 @@ public class WallComponent extends PlanComponent {
         ctx.strokeLine(scaledX, scaledY, scaledX2, scaledY2);
     }
 
-    public static WallComponent create(RoomComponent roomComponent, ListMultimap<RoomComponent, Connection> allConnections, String name, int id) {
-        WallComponent out = new WallComponent(roomComponent, name, id);
-        List<Connection> connections = allConnections.get(roomComponent);
-        out.connections.addAll(connections);
-        return out;
+    public void setConnections(List<Connection> connections) {
+        this.connections = connections;
     }
 
     public List<Connection> getConnections() {

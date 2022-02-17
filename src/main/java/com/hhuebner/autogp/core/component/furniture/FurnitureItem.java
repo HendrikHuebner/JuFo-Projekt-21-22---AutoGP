@@ -1,13 +1,6 @@
 package com.hhuebner.autogp.core.component.furniture;
 
-import com.hhuebner.autogp.AutoGP;
-import com.hhuebner.autogp.core.component.PlanComponent;
-import com.hhuebner.autogp.core.engine.GPEngine;
-import com.hhuebner.autogp.core.engine.ImageLoader;
 import com.hhuebner.autogp.ui.symbols.SymbolRenderer;
-import javafx.scene.image.Image;
-
-import java.util.List;
 
 public class FurnitureItem {
 
@@ -24,11 +17,6 @@ public class FurnitureItem {
         this.cornerGenerating = cornerGenerating;
         this.renderer = renderer;
 
-        /*
-        this.image = ImageLoader.INSTANCE.getOrLoad(path + ".png");
-        if(this.image == null || this.image.isError()) {
-            AutoGP.warn("Failed to load image for ", this.path, "!");
-        }*/
     }
 
     public FurnitureItem(String name, double width, double height, SymbolRenderer renderer) {

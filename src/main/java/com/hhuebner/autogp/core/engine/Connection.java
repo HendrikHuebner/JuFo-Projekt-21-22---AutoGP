@@ -15,10 +15,10 @@ public record Connection(RoomComponent roomComponent, Direction side, double sta
         BoundingBox bb2 = new BoundingBox(r2.getBoundingBox());
 
         Direction direction = null;
-        if (epsEquals(bb1.x, bb2.x2)) direction = Direction.WEST;
-        if (epsEquals(bb1.x2, bb2.x)) direction = Direction.EAST;
-        if (epsEquals(bb1.y, bb2.y2)) direction = Direction.NORTH;
-        if (epsEquals(bb1.y2, bb2.y)) direction = Direction.SOUTH;
+        if (epsEquals(bb1.x, bb2.x2, 0.05)) direction = Direction.WEST;
+        if (epsEquals(bb1.x2, bb2.x, 0.05)) direction = Direction.EAST;
+        if (epsEquals(bb1.y, bb2.y2, 0.05)) direction = Direction.NORTH;
+        if (epsEquals(bb1.y2, bb2.y, 0.05)) direction = Direction.SOUTH;
 
         if (direction != null) {
             double start;

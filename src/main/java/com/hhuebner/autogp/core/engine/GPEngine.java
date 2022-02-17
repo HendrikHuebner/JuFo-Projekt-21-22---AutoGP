@@ -139,15 +139,24 @@ public class GPEngine {
         }
 
         List<RoomComponent> hallways = gp.components.stream().filter(c -> c.room.type == RoomType.HALLWAY).collect(Collectors.toList());
-        Optional<RoomComponent> optStart = hallways.stream().findFirst();
+        Optional<RoomComponent> optStart = Optional.empty(); //root
         List<RoomComponent> connected = new ArrayList<>();
         List<RoomComponent> toConnect = new ArrayList<>(gp.components);
 
         for(RoomComponent room : gp.components) {
-            room.addChild(WallComponent.create(room, connections, "wall", gp.getNextID()));
+            WallComponent wc = new WallComponent(room, "wall", gp.getNextID());
+            wc.setConnections(connections.get(room));
+            room.addChild(wc);
         }
 
-        //Try connect all hallways
+        //try determining root hallway
+        for(RoomComponent h : hallways) {
+            Direction d = getFreeSide(h, connections.get(h));
+            if(d != null) optStart = Optional.of(h);
+            else return null;
+        }
+
+        //Try to connect all hallways
         if(optStart.isPresent()) {
             connected.add(optStart.get());
             toConnect.remove(optStart.get());
@@ -188,6 +197,14 @@ public class GPEngine {
                 toConnect.remove(0);
             }
         }
+
+        //add entrance door
+        RoomComponent start = optStart.get();
+        Direction d = getFreeSide(start, connections.get(start));
+        if(d != null) {
+            createDoor(gp, start, new Connection(start, d, 0, d.isHorizontal() ? start.getBoundingBox().getHeight() : start.getBoundingBox().getWidth()));
+        } else return null;
+
 
         //connect living room and bathroom
         for(int i = 0; i < toConnect.size(); i++) {
@@ -235,7 +252,6 @@ public class GPEngine {
             if(!found) {
                 return null;
             }
-
         }
 
         for(RoomComponent roomComponent : gp.components) {
@@ -377,6 +393,20 @@ public class GPEngine {
         return new BoundingBox(0, 0, width, height);
     }
 
+    private Direction getFreeSide(RoomComponent room, List<Connection> connections) {
+        List<Direction> directions = new ArrayList<>(List.of(Direction.values()));
+
+        for(Connection c : connections) {
+            directions.remove(c.side());
+        }
+
+        if(!directions.isEmpty()) {
+            return directions.get(0);
+        }
+
+        return null;
+    }
+
     public void calculateRoomSizes(double gpSize) {
         double sum = 0;
         int count = 0;
@@ -426,4 +456,19 @@ public class GPEngine {
         this.rooms.add(room);
     }
 
+    public void updateConnections() {
+        GroundPlan gp = getSelectedGP();
+        for(RoomComponent r : gp.components) {
+            List<Connection> connections = new ArrayList<>();
+            for (RoomComponent r2 : gp.components) {
+                if(r != r2) {
+                    Connection c = Connection.getConnection(r, r2);
+                    if(c != null) connections.add(c);
+                }
+            }
+
+            connections.sort(Comparator.comparingDouble(c -> c.start()));
+            r.getWallComponent().setConnections(connections);
+        }
+    }
 }

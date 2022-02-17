@@ -162,6 +162,8 @@ public class InputHandler {
                 case WEST -> component.getBoundingBox().x += dx;
                 case EAST -> component.getBoundingBox().x2 += dx;
             }
+
+            engine.updateConnections();
         }
     }
 

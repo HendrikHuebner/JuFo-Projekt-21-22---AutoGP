@@ -133,7 +133,7 @@ public class MainSceneController {
 
         for (int i = 0; i < limit; i++) {
             seed = seedGen.nextLong();
-            GroundPlan gp = this.engine.generate(id,"gp", inputHandler.gpSize, 235621015467243245l);
+            GroundPlan gp = this.engine.generate(id,"gp", inputHandler.gpSize, seed);
 
             if (gp != null) {
                 tries += i + 1;

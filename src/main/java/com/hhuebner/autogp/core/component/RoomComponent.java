@@ -17,7 +17,7 @@ public class RoomComponent extends InteractableComponent {
 
 
     public RoomComponent(Room room, BoundingBox bb, long id) {
-        super(bb, "room" + id, id);
+        super(bb, room.name, id);
         this.room = room;
     }
 
