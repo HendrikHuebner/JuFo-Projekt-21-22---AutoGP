@@ -95,23 +95,27 @@ public class CanvasRenderer extends AnimationTimer {
 
         final int cellCountX = (int) (canvas.getWidth() / this.cam.getScaleX() / CELL_SIZE) + 3;
         final int cellCountY = (int) (canvas.getHeight() / this.cam.getScaleY() / CELL_SIZE) + 3;
-        double startX = -this.cam.getX() + this.cam.getX() % CELL_SIZE;
-        double startY = -this.cam.getY() + this.cam.getY() % CELL_SIZE;
 
         ctx.setTextBaseline(VPos.CENTER);
         ctx.setTextAlign(TextAlignment.RIGHT);
 
-        for(int i = 0; i < cellCountX; i++) {
+        //horizontal
+        int dx = 1 + cellCountX / 20;
+        double startX = -this.cam.getX() + this.cam.getX() % (CELL_SIZE * dx);
+        for(int i = 0; i < cellCountX; i += dx) {
             ctx.fillText(String.format("%.1f", Utility.calcPixels(startX/CELL_SIZE + i, this.inputHandler)),
-                    (this.cam.getX() % CELL_SIZE + i * CELL_SIZE) * cam.getScaleX(), canvas.getHeight() - 10);
+                    (this.cam.getX() % (CELL_SIZE * dx) + i * CELL_SIZE) * cam.getScaleX(), canvas.getHeight() - 10);
         }
 
         ctx.setTextBaseline(VPos.CENTER);
         ctx.setTextAlign(TextAlignment.CENTER);
 
-        for(int i = 0; i < cellCountY; i++) {
+        //vertical
+        int dy = 1 + cellCountY / 20;
+        double startY = -this.cam.getY() + this.cam.getY() % (CELL_SIZE * dy);
+        for(int i = 0; i < cellCountY; i += dy) {
             ctx.fillText(String.format("%.1f", Utility.calcPixels(startY/CELL_SIZE + i, this.inputHandler)), 10,
-                    (this.cam.getY() % CELL_SIZE + i * CELL_SIZE) * cam.getScaleY());
+                    (this.cam.getY() % (CELL_SIZE * dy) + i * CELL_SIZE) * cam.getScaleY());
         }
 
         ctx.restore();

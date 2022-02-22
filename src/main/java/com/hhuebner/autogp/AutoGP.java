@@ -1,5 +1,6 @@
 package com.hhuebner.autogp;
 
+import com.hhuebner.autogp.controllers.FurnitureSelectionController;
 import com.hhuebner.autogp.controllers.MainSceneController;
 import com.hhuebner.autogp.controllers.RoomEditorController;
 import com.hhuebner.autogp.core.ControllerFactory;
@@ -9,7 +10,6 @@ import com.hhuebner.autogp.ui.Camera;
 import com.hhuebner.autogp.ui.CanvasRenderer;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
@@ -17,34 +17,30 @@ import java.io.IOException;
 
 public class AutoGP extends Application {
 
-    private Scene mainScene = null;
     private Scene roomEditorScene = null;
+    private Scene furnitureSelectionScene;
     private FXMLLoader mainLoader = null;
 
     @Override
     public void start(Stage stage) throws IOException { //TODO: refactor
         Camera camera = new Camera();
         GPEngine engine = new GPEngine(() -> AutoGP.this.mainLoader.getController());
-        InputHandler inputHandler = new InputHandler(() -> this.mainScene, engine);
-        ControllerFactory mainCF = new ControllerFactory();
+        InputHandler inputHandler = new InputHandler(() -> AutoGP.this.mainLoader.getController(), engine);
 
-        mainCF.registerController(MainSceneController.class, new MainSceneController(inputHandler, () -> this.roomEditorScene, engine, camera));
+        //main scene
+        this.mainLoader = getFXMLLoader("auto_gp.fxml", MainSceneController.class,
+                new MainSceneController(inputHandler, () -> this.roomEditorScene, () -> this.furnitureSelectionScene, engine, camera));
 
-        mainLoader = new FXMLLoader(getClass().getResource("auto_gp.fxml"));
-        mainCF.setControllers(mainLoader);
+        //room editor
+        FXMLLoader roomEditorLoader = getFXMLLoader("room_editor.fxml", RoomEditorController.class, new RoomEditorController(engine));
 
-        ControllerFactory roomEditorCF = new ControllerFactory();
-        roomEditorCF.registerController(RoomEditorController.class, new RoomEditorController(engine, () -> AutoGP.this.mainLoader.getController()));
-        FXMLLoader roomEditorLoader = new FXMLLoader(getClass().getResource("room_editor.fxml"));
-        roomEditorCF.setControllers(roomEditorLoader);
+        //furniture selector
+        FXMLLoader furnitureSelectionLoader = getFXMLLoader("furniture_selector.fxml",
+                FurnitureSelectionController.class, new FurnitureSelectionController(inputHandler));
 
-        Parent mainRoot = mainLoader.load();
-        Scene main = new Scene(mainRoot, 834, 555);
-        this.mainScene = main;
-
-        Parent roomEditorRoot = roomEditorLoader.load();
-        Scene roomEditor = new Scene(roomEditorRoot, 340, 377);
-        this.roomEditorScene = roomEditor;
+        Scene main = new Scene(mainLoader.load(), 834, 555);
+        this.roomEditorScene = new Scene(roomEditorLoader.load(), 340, 377);
+        this.furnitureSelectionScene = new Scene(furnitureSelectionLoader.load(),269, 346);
 
         stage.setTitle("AutoGP");
         stage.setResizable(false);
@@ -55,6 +51,14 @@ public class AutoGP extends Application {
 
         CanvasRenderer canvasRenderer = new CanvasRenderer(((MainSceneController)mainLoader.getController()).canvas, inputHandler, engine, camera);
         canvasRenderer.start();
+    }
+
+    public static <T> FXMLLoader getFXMLLoader(String path, Class clazz, T controller) {
+        ControllerFactory controllerFactory = new ControllerFactory(); //Not necessary anymore, need to remove
+        controllerFactory.registerController(clazz, controller);
+        FXMLLoader loader = new FXMLLoader(AutoGP.class.getResource(path));
+        controllerFactory.setControllers(loader);
+        return loader;
     }
 
     public static void main(String[] args) {

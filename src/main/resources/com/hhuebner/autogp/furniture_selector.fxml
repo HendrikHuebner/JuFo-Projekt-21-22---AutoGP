@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.*?>
+<?import javafx.scene.canvas.Canvas?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<AnchorPane prefHeight="346.0" prefWidth="269.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.hhuebner.autogp.controllers.FurnitureSelectionController">
+   <children>
+      <VBox alignment="CENTER" prefHeight="346.0" prefWidth="269.0">
+         <children>
+            <TextField fx:id="nameTextField" maxWidth="-Infinity" onKeyTyped="#onSetName" prefHeight="25.0" prefWidth="253.0" text="Name">
+               <VBox.margin>
+                  <Insets top="20.0" />
+               </VBox.margin></TextField>
+            <HBox alignment="CENTER" prefHeight="51.0" prefWidth="367.0" spacing="5.0">
+               <children>
+                  <Label text="Typ:">
+                     <HBox.margin>
+                        <Insets right="20.0" />
+                     </HBox.margin>
+                  </Label>
+                  <ChoiceBox fx:id="furnitureChoice" prefWidth="150.0" />
+               </children>
+            </HBox>
+            <Canvas fx:id="previewCanvas" height="200.0" width="200.0" />
+            <HBox alignment="CENTER" prefHeight="75.0" prefWidth="255.0" spacing="50.0">
+               <children>
+                  <Button mnemonicParsing="false" onAction="#onFinish" prefHeight="25.0" prefWidth="120.0" text="Ok">
+                     <HBox.margin>
+                        <Insets left="20.0" />
+                     </HBox.margin>
+                  </Button>
+                  <Button mnemonicParsing="false" onAction="#onCancel" prefHeight="25.0" prefWidth="119.0" text="Abbrechen">
+                     <HBox.margin>
+                        <Insets right="20.0" />
+                     </HBox.margin>
+                  </Button>
+               </children>
+            </HBox>
+         </children>
+         <padding>
+            <Insets left="10.0" />
+         </padding>
+      </VBox>
+   </children>
+</AnchorPane>

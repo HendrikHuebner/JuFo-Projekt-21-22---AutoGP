@@ -1,5 +1,6 @@
 package com.hhuebner.autogp.core;
 
+import com.hhuebner.autogp.controllers.MainSceneController;
 import com.hhuebner.autogp.core.component.InteractableComponent;
 import com.hhuebner.autogp.core.component.PlanComponent;
 import com.hhuebner.autogp.core.component.RoomComponent;
@@ -11,7 +12,6 @@ import com.hhuebner.autogp.core.util.Utility;
 import com.hhuebner.autogp.options.OptionsHandler;
 import com.hhuebner.autogp.ui.widgets.GroundPlanTab;
 import javafx.geometry.Point2D;
-import javafx.scene.Scene;
 
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -21,7 +21,7 @@ import static com.hhuebner.autogp.core.engine.GPEngine.CELL_SIZE;
 public class InputHandler {
 
     private final GPEngine engine;
-    private final Supplier<Scene> scene;
+    private final Supplier<MainSceneController> scene;
     public Optional<Point2D> dragStart = Optional.empty();
     public Optional<Point2D> dragEnd = Optional.empty();
     public Unit displayUnit = Unit.METRES;
@@ -35,7 +35,7 @@ public class InputHandler {
     private Optional<DragMode> selectedDragMode = Optional.empty();
 
 
-    public InputHandler(Supplier<Scene> scene, GPEngine engine) {
+    public InputHandler(Supplier<MainSceneController> scene, GPEngine engine) {
         this.scene = scene;
         this.engine = engine;
     }
@@ -121,6 +121,7 @@ public class InputHandler {
                 } else {
                     //select
                     this.selectedRoom = Optional.of((RoomComponent) component);
+                    this.scene.get().onSelectRoom((RoomComponent) component);
                 }
             } else {
                 //room must be selected already
@@ -193,7 +194,6 @@ public class InputHandler {
         this.clearSelectedComponent();
         this.engine.groundPlanMap.remove(tab.getID());
     }
-
 
     public static enum Tool {
         CURSOR,

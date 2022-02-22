@@ -6,6 +6,7 @@ module com.hhuebner.autogp {
 
     opens com.hhuebner.autogp to javafx.fxml;
     opens com.hhuebner.autogp.core.engine to javafx.base;
+    opens com.hhuebner.autogp.core.component.furniture to javafx.base;
     opens com.hhuebner.autogp.controllers to javafx.fxml;
 
     exports com.hhuebner.autogp;

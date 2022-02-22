@@ -42,4 +42,22 @@ public class FurnitureItem {
     public double getHeight() {
         return this.height;
     }
+
+    //TableView
+    public String getDisplayName() {
+        return this.name;
+    }
+
+    public String getDisplaySize() {
+        return String.format("%.2fm x %.2fm", this.getWidth(), this.getHeight());
+    }
+
+    public String getDisplayType() {
+        return this.getName();
+    }
+
+    @Override
+    public String toString() {
+        return this.name;
+    }
 }

@@ -3,6 +3,7 @@ package com.hhuebner.autogp.controllers;
 import com.hhuebner.autogp.AutoGP;
 import com.hhuebner.autogp.core.InputHandler;
 import com.hhuebner.autogp.core.component.InteractableComponent;
+import com.hhuebner.autogp.core.component.RoomComponent;
 import com.hhuebner.autogp.core.component.furniture.FurnitureItem;
 import com.hhuebner.autogp.core.engine.GPEngine;
 import com.hhuebner.autogp.core.engine.GroundPlan;
@@ -12,9 +13,9 @@ import com.hhuebner.autogp.core.util.UnitSq;
 import com.hhuebner.autogp.core.util.Utility;
 import com.hhuebner.autogp.options.OptionsHandler;
 import com.hhuebner.autogp.ui.Camera;
+import com.hhuebner.autogp.ui.widgets.ButtonCell;
 import com.hhuebner.autogp.ui.widgets.GroundPlanTab;
 import com.hhuebner.autogp.ui.widgets.InformationLabel;
-import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -42,6 +43,7 @@ public class MainSceneController {
 
     private int groundPlanId = 0;
     private final Supplier<Scene> roomEditorScene;
+    private final Supplier<Scene> furnitureSelectionScene;
 
     @FXML public TabPane tabPane;
 
@@ -49,10 +51,19 @@ public class MainSceneController {
     @FXML public ChoiceBox<UnitSq> inputUnitChoiceBaseArea;
     @FXML public ChoiceBox<Unit> outputUnitChoice;
 
-    @FXML public TableView<Room> roomsOverviewTable;
-    @FXML private TableColumn<Room, String> nameCol;
-    @FXML private TableColumn<Room, String> sizeCol;
-    @FXML private TableColumn<Room, String> furnitureCol;
+    @FXML private ScrollPane tableScrollPane;
+
+    public TableView<Room> roomsOverviewTable = new TableView<>();
+    private TableColumn<Room, String> nameCol = new TableColumn<>("Name");
+    private TableColumn<Room, String> typeCol = new TableColumn<>("Typ");
+    private TableColumn<Room, String> sizeCol = new TableColumn<>("Fläche");
+    private TableColumn<Room, Void> removeButtonCol = new TableColumn<>("Löschen");
+
+    public TableView<FurnitureItem> furnitureOverviewTable = new TableView<>();
+    private TableColumn<FurnitureItem, String> fSymbolCol = new TableColumn<>("Typ");
+    private TableColumn<FurnitureItem, String> fNameCol = new TableColumn<>("Name");
+    private TableColumn<FurnitureItem, String> fSizeCol = new TableColumn<>("Größe");
+    private TableColumn<FurnitureItem, Void> fRemoveButtonCol = new TableColumn<>("Löschen");
 
     @FXML public Canvas canvas;
     @FXML public InformationLabel infoLabel;
@@ -63,29 +74,31 @@ public class MainSceneController {
     private Point2D prevMousePos = new Point2D(0, 0);
 
 
-    public MainSceneController(InputHandler inputHandler, Supplier<Scene> roomEditorScene, GPEngine engine, Camera cam) {
+    public MainSceneController(InputHandler inputHandler, Supplier<Scene> roomEditorScene, Supplier<Scene> furnitureSelectionScene, GPEngine engine, Camera cam) {
         this.inputHandler = inputHandler;
         this.roomEditorScene = roomEditorScene;
+        this.furnitureSelectionScene = furnitureSelectionScene;
         this.engine = engine;
         this.cam = cam;
     }
 
     @FXML
     public void initialize() {
-        //TableView
+        //TableViews
         nameCol.setCellValueFactory(new PropertyValueFactory("name"));
         sizeCol.setCellValueFactory(new PropertyValueFactory("size"));
-        furnitureCol.setCellValueFactory((param -> {
-            StringBuilder sb = new StringBuilder();
-            for(FurnitureItem fi : param.getValue().furniture) {
-                sb.append(fi.getName());
-                sb.append(" ");
-            }
-
-            return new ReadOnlyStringWrapper(sb.toString());
-        }));
+        typeCol.setCellValueFactory(new PropertyValueFactory("type"));
+        removeButtonCol.setCellFactory(p -> new ButtonCell<>(roomsOverviewTable));
+        roomsOverviewTable.getColumns().addAll(nameCol, typeCol, sizeCol, removeButtonCol);
 
         roomsOverviewTable.setItems(engine.rooms);
+        tableScrollPane.setContent(roomsOverviewTable);
+
+        fNameCol.setCellValueFactory(new PropertyValueFactory("displayName"));
+        fSizeCol.setCellValueFactory(new PropertyValueFactory("displaySize"));
+        fSymbolCol.setCellValueFactory(new PropertyValueFactory("displayType"));
+        fRemoveButtonCol.setCellFactory(p -> new ButtonCell<>(furnitureOverviewTable));
+        furnitureOverviewTable.getColumns().addAll(fNameCol, fSymbolCol, fSizeCol, fRemoveButtonCol);
 
         //Choice boxes
         ObservableList<Unit> units = FXCollections.observableArrayList(Unit.values());
@@ -115,7 +128,14 @@ public class MainSceneController {
         dialog.setResizable(false);
         dialog.setTitle("Raum Hinzufügen");
         dialog.initModality(Modality.APPLICATION_MODAL);
-        dialog.setScene(this.roomEditorScene.get());
+
+        //select scene to show
+        if(this.inputHandler.selectedRoom.isPresent()) {
+            dialog.setScene(this.furnitureSelectionScene.get());
+        } else {
+            dialog.setScene(this.roomEditorScene.get());
+        }
+
         dialog.showAndWait();
     }
 
@@ -123,7 +143,7 @@ public class MainSceneController {
     public void onGenerate(ActionEvent event) {
         Random seedGen = new Random();
 
-        int limit = OptionsHandler.INSTANCE.generationTryLimit.get();
+        int limit = 10000; OptionsHandler.INSTANCE.generationTryLimit.get();
         long start = System.currentTimeMillis();
         int tries = 0;
         long seed = 0;
@@ -263,5 +283,10 @@ public class MainSceneController {
         affine.prependTranslation(-event.getX(), -event.getY());
         affine.prependScale(multiplier, multiplier);
         affine.prependTranslation(event.getX(), event.getY());
+    }
+
+    public void onSelectRoom(RoomComponent component) {
+        this.furnitureOverviewTable.setItems(component.room.furniture);
+        this.tableScrollPane.setContent(this.furnitureOverviewTable);
     }
 }

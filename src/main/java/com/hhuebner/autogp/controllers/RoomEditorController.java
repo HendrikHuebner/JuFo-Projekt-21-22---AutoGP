@@ -17,11 +17,8 @@ import javafx.scene.control.TextField;
 import javafx.scene.input.KeyEvent;
 import javafx.stage.Stage;
 
-import java.util.function.Supplier;
-
 public class RoomEditorController {
 
-    private final Supplier<MainSceneController> mainController;
     @FXML
     public ChoiceBox<Unit> sizeUnitChoice;
     @FXML
@@ -35,9 +32,8 @@ public class RoomEditorController {
     private final GPEngine engine;
     
 
-    public RoomEditorController(GPEngine engine, Supplier<MainSceneController> controller) {
+    public RoomEditorController(GPEngine engine) {
         this.engine = engine;
-        this.mainController = controller;
     }
 
     @FXML

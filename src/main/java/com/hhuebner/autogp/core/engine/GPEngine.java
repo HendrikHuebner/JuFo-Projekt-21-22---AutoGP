@@ -36,7 +36,6 @@ public class GPEngine {
         this.rooms.add(new Room.Builder().setType(RoomType.BED_ROOM).build());
 
         this.rooms.add(new Room.Builder().setType(RoomType.BATH_ROOM).build());
-        this.rooms.add(new Room.Builder().setType(RoomType.BATH_ROOM).build());
 
         this.rooms.add(new Room.Builder().setType(RoomType.KITCHEN).build());
     }
@@ -236,6 +235,9 @@ public class GPEngine {
 
         for(int i = 0; i < toConnect.size(); i++) {
             RoomComponent r = toConnect.get(i);
+            if(r.room.type == RoomType.BATH_ROOM)
+                return null;
+
             boolean found = false;
             for(Connection c : connections.get(r)) {
                 if(Math.abs(c.start() - c.end()) < 1) continue;

@@ -63,19 +63,8 @@
                                 </HBox>
                             </children>
                         </HBox>
-                        <ScrollPane hbarPolicy="ALWAYS" prefHeight="305.0" prefWidth="214.0" vbarPolicy="ALWAYS">
-                     <content>
-                                  <TableView fx:id="roomsOverviewTable" prefHeight="290.0" prefWidth="382.0" stylesheets="@style.css">
-                                      <columns>
-                                          <TableColumn fx:id="nameCol" prefWidth="75.0" text="Name" />
-                                          <TableColumn fx:id="sizeCol" prefWidth="75.0" text="Größe" />
-                                          <TableColumn fx:id="furnitureCol" prefWidth="75.0" text="Einrichtung" />
-                                      </columns>
-                                      <columnResizePolicy>
-                                          <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
-                                      </columnResizePolicy>
-                                  </TableView>
-                     </content>
+                        <ScrollPane fx:id="tableScrollPane" hbarPolicy="ALWAYS" prefHeight="305.0" prefWidth="214.0" vbarPolicy="ALWAYS">
+                            <!-- populated dynamically-->
                         </ScrollPane>
                   <VBox prefHeight="79.0" prefWidth="273.0">
                      <children>
