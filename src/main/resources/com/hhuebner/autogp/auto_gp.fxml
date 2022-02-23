@@ -136,7 +136,7 @@
                           <Button mnemonicParsing="false" onAction="#onClickSelectTool" text="Select" />
                           <Button mnemonicParsing="false" onAction="#onClickRulerTool" text="Ruler" />
                           <Separator orientation="VERTICAL" prefHeight="0.0" prefWidth="11.0" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" />
-                          <InformationLabel fx:id="infoLabel" wrapText="true" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="36.0" prefWidth="326.0" />
+                          <InformationLabel fx:id="infoLabel" wrapText="true" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="36.0" prefWidth="306.0" />
                       </items>
                <BorderPane.margin>
                   <Insets left="275.0" />

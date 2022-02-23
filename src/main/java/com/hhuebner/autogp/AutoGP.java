@@ -39,7 +39,7 @@ public class AutoGP extends Application {
                 FurnitureSelectionController.class, new FurnitureSelectionController(inputHandler));
 
         Scene main = new Scene(mainLoader.load(), 834, 555);
-        this.roomEditorScene = new Scene(roomEditorLoader.load(), 340, 377);
+        this.roomEditorScene = new Scene(roomEditorLoader.load(), 293, 340);
         this.furnitureSelectionScene = new Scene(furnitureSelectionLoader.load(),269, 346);
 
         stage.setTitle("AutoGP");

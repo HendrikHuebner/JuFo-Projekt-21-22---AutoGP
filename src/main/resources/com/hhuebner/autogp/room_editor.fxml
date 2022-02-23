@@ -1,19 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
-<AnchorPane prefHeight="340.0" prefWidth="377.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.hhuebner.autogp.controllers.RoomEditorController">
+<AnchorPane prefHeight="340.0" prefWidth="283.0" xmlns="http://javafx.com/javafx/16" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.hhuebner.autogp.controllers.RoomEditorController">
    <children>
-      <VBox prefHeight="340.0" prefWidth="377.0">
+      <VBox prefHeight="340.0" prefWidth="291.0">
          <children>
-            <TextField maxWidth="-Infinity" prefHeight="25.0" prefWidth="253.0" text="Name" onKeyTyped="#onSetName" fx:id="nameTextField" />
+            <TextField fx:id="nameTextField" maxWidth="-Infinity" onKeyTyped="#onSetName" prefHeight="25.0" prefWidth="253.0" text="Name" />
             <HBox alignment="CENTER_LEFT" prefHeight="50.0" prefWidth="367.0" spacing="5.0">
                <children>
-                  <Label text="Minimale Größe" />
-                  <TextField prefHeight="25.0" prefWidth="85.0" onKeyTyped="#onSetSize" />
-                  <ChoiceBox prefHeight="25.0" prefWidth="36.0" fx:id="sizeUnitChoice" />
+                  <Label text="Minimale Größe (Optional)" />
+                  <TextField onKeyTyped="#onSetSize" prefHeight="25.0" prefWidth="85.0" />
+                  <ChoiceBox fx:id="sizeUnitChoice" prefHeight="25.0" prefWidth="36.0" />
                </children>
             </HBox>
             <HBox alignment="CENTER_LEFT" prefHeight="51.0" prefWidth="367.0" spacing="5.0">
@@ -23,15 +22,23 @@
                         <Insets right="20.0" />
                      </HBox.margin>
                   </Label>
-                  <ChoiceBox prefWidth="150.0" fx:id="roomTypeChoice"/>
+                  <ChoiceBox fx:id="roomTypeChoice" prefWidth="150.0" />
                </children>
             </HBox>
-            <ListView maxWidth="-Infinity" prefHeight="123.0" prefWidth="288.0" fx:id="furnitureListDisplay"/>
-            <HBox alignment="CENTER" prefHeight="100.0" prefWidth="140.0" spacing="50.0">
+            <Label text="Standardeinrichtung:">
+               <VBox.margin>
+                  <Insets bottom="5.0" top="5.0" />
+               </VBox.margin>
+            </Label>
+            <ListView fx:id="furnitureListDisplay" maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="104.0" prefWidth="255.0" />
+            <HBox alignment="CENTER" prefHeight="59.0" prefWidth="281.0" spacing="20.0">
                <children>
-                  <Button mnemonicParsing="false" prefHeight="25.0" prefWidth="120.0" text="Ok" onAction="#onFinish" />
-                  <Button mnemonicParsing="false" prefHeight="25.0" prefWidth="119.0" text="Abbrechen" onAction="#onCancel" />
+                  <Button mnemonicParsing="false" onAction="#onFinish" prefHeight="25.0" prefWidth="120.0" text="Ok" />
+                  <Button mnemonicParsing="false" onAction="#onCancel" prefHeight="25.0" prefWidth="119.0" text="Abbrechen" />
                </children>
+               <padding>
+                  <Insets top="20.0" />
+               </padding>
             </HBox>
          </children>
          <padding>
