@@ -1,12 +1,16 @@
 package com.hhuebner.autogp.options;
 
+import javafx.scene.control.MenuItem;
+
 public abstract class Option<T> {
 
+    protected final String parentMenu;
     protected final String key;
     protected final T defaultValue;
     protected T value;
 
-    public Option(String key, T defaultValue) {
+    public Option(String parentMenu, String key, T defaultValue) {
+        this.parentMenu = parentMenu;
         this.key = key;
         this.defaultValue = defaultValue;
         this.value = defaultValue;
@@ -14,6 +18,10 @@ public abstract class Option<T> {
 
     public String getKey() {
         return key;
+    }
+
+    public String getParentMenu() {
+        return parentMenu;
     }
 
     public T getDefaultValue() {
@@ -28,6 +36,8 @@ public abstract class Option<T> {
     };
 
     public abstract void setValue(String value);
+
+    public abstract MenuItem createMenuItem();
 
     public T get() {
         return value;

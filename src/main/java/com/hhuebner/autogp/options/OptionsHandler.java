@@ -12,37 +12,37 @@ public class OptionsHandler {
     public static final OptionsHandler INSTANCE = new OptionsHandler();
     public final boolean DEBUG = false;
 
-    private List<Option<?>> options = new ArrayList<>();
+    private final List<Option<?>> options = new ArrayList<>();
 
     //CANVAS UI
-    public Option<Boolean> showDoorHitBoxes = register(new BoolOption("showDoorHitBoxes", false));
-    public Option<Boolean> showGrid = register(new BoolOption("showGrid", true));
-    public Option<Boolean> showNumbers = register(new BoolOption("showNumbers", true));
-    public Option<Boolean> colorRooms = register(new BoolOption("colorRooms", true));
-    public Option<Double> graphSizeLimitFactor = register(new DoubleOption("graphSizeLimitFactor", 1.4));
-    public Option<Integer> furnitureLineWidth = register(new IntOption("furnitureLineWidth", 2));
+    public Option<Boolean> showDoorHitBoxes = register(new BoolOption("UI", "showDoorHitBoxes", false));
+    public Option<Boolean> showGrid = register(new BoolOption("UI", "showGrid", true));
+    public Option<Boolean> showNumbers = register(new BoolOption("UI", "showNumbers", true));
+    public Option<Boolean> colorRooms = register(new BoolOption("UI", "colorRooms", true));
+    public Option<Double> graphSizeLimitFactor = register(new DoubleOption("", "graphSizeLimitFactor", 1.4));
+    public Option<Integer> furnitureLineWidth = register(new IntOption("", "furnitureLineWidth", 2));
 
     //WALLS, DOORS, WINDOWS
-    public Option<Double> innerWallWidth = register(new DoubleOption("innerWallWidth", 0.1));
-    public Option<Double> outerWallWidth = register(new DoubleOption("outerWallWidth", 0.2));
-    public Option<Double> doorSize = register(new DoubleOption("doorSize", 0.75));
-    public Option<Double> doorPrefWallDistance = register(new DoubleOption("doorPrefWallDistance", 0.25));
-    public Option<Double> doorClearanceFactor = register(new DoubleOption("doorClearanceFactor", 1.5));
+    public Option<Double> innerWallWidth = register(new DoubleOption("", "innerWallWidth", 0.1));
+    public Option<Double> outerWallWidth = register(new DoubleOption("", "outerWallWidth", 0.2));
+    public Option<Double> doorSize = register(new DoubleOption("", "doorSize", 0.75));
+    public Option<Double> doorPrefWallDistance = register(new DoubleOption("", "doorPrefWallDistance", 0.25));
+    public Option<Double> doorClearanceFactor = register(new DoubleOption("", "doorClearanceFactor", 1.5));
 
     //GENERATION ALGORITHM
-    public Option<Integer> generationTryLimit = register(new IntOption("generationTryLimit", 5000));
-    public Option<Boolean> generateFurniture = register(new BoolOption("generateFurniture", true));
-    public Option<Boolean> generateDoors = register(new BoolOption("generateDoors", true));
-    public Option<Boolean> generateWindows = register(new BoolOption("generateWindows", true));
-    public Option<Double> minimumRoomWidth = register(new DoubleOption("minimumRoomWidth", 1.4));
-    public Option<Double> roomSizeRoundingThreshold = register(new DoubleOption("roomSizeRoundingThreshold", 0.75));
-    public Option<Integer> furnitureSpawnTries = register(new IntOption("furnitureSpawnTries", 10));
-    public Option<Double> windowHeight = register(new DoubleOption("windowHeight", 1.0));
-    public Option<Double> bathroomWindowWidth =  register(new DoubleOption("bathroomWindowWidth", 0.3));
+    public Option<Integer> generationTryLimit = register(new IntOption("", "generationTryLimit", 5000));
+    public Option<Boolean> generateFurniture = register(new BoolOption("Grundriss Generierung", "generateFurniture", true));
+    public Option<Boolean> generateDoors = register(new BoolOption("Grundriss Generierung", "generateDoors", true));
+    public Option<Boolean> generateWindows = register(new BoolOption("Grundriss Generierung", "generateWindows", true));
+    public Option<Double> minimumRoomWidth = register(new DoubleOption("", "minimumRoomWidth", 1.4));
+    public Option<Double> roomSizeRoundingThreshold = register(new DoubleOption("", "roomSizeRoundingThreshold", 0.75));
+    public Option<Integer> furnitureSpawnTries = register(new IntOption("", "furnitureSpawnTries", 10));
+    public Option<Double> windowHeight = register(new DoubleOption("", "windowHeight", 1.0));
+    public Option<Double> bathroomWindowWidth =  register(new DoubleOption("", "bathroomWindowWidth", 0.3));
     //ROOM PROPORTIONS
 
     //DEFAULT PARAMETERS
-    public Option<Double> defaultGPSize = register(new DoubleOption("defaultGPSize", 100.0));
+    public Option<Double> defaultGPSize = register(new DoubleOption("", "defaultGPSize", 100.0));
 
     private OptionsHandler() {
         loadConfig();
@@ -57,8 +57,7 @@ public class OptionsHandler {
         }
 
         try (InputStream inputStream = new FileInputStream("config.properties")) {
-            if(inputStream != null)
-                prop.load(inputStream);
+            prop.load(inputStream);
 
         } catch (IOException e) {
             e.printStackTrace();

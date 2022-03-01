@@ -9,34 +9,17 @@
     <children>
         <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="555.0" prefWidth="834.0">
             <top>
-                <MenuBar BorderPane.alignment="CENTER">
+                <MenuBar BorderPane.alignment="CENTER" fx:id="menuBar">
                     <menus>
-                        <Menu mnemonicParsing="false" text="Datei" />
+                        <Menu mnemonicParsing="false" text="Datei"></Menu>
                         <Menu mnemonicParsing="false" text="Einstellungen">
                             <items>
-                                <Menu mnemonicParsing="false" text="UI">
-                                    <items>
-                                        <MenuItem mnemonicParsing="false" text="Action 1" />
-                                    </items>
-                                </Menu>
-                                <Menu mnemonicParsing="false" text="Grundriss Generierung">
-                                    <items>
-                                        <MenuItem mnemonicParsing="false" text="Action 1" />
-                                        <CheckMenuItem mnemonicParsing="false" text="Generiere Möbel" />
-                                        <CheckMenuItem mnemonicParsing="false" selected="true" text="Generiere Türen" />
-                                    </items>
-                                </Menu>
-                                <Menu mnemonicParsing="false" text="Türen">
-                                    <items>
-                                        <MenuItem mnemonicParsing="false" text="Action 1" />
-                                    </items>
-                                </Menu>
+                                <Menu mnemonicParsing="false" text="UI"></Menu>
+                                <Menu mnemonicParsing="false" text="Grundriss Generierung"></Menu>
+                                <Menu mnemonicParsing="false" text="Türen"></Menu>
                             </items>
                         </Menu>
                         <Menu mnemonicParsing="false" text="Hilfe">
-                            <items>
-                                <MenuItem mnemonicParsing="false" text="About" />
-                            </items>
                         </Menu>
                     </menus>
                <BorderPane.margin>

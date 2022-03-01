@@ -2,6 +2,7 @@ package com.hhuebner.autogp;
 
 import com.hhuebner.autogp.controllers.FurnitureSelectionController;
 import com.hhuebner.autogp.controllers.MainSceneController;
+import com.hhuebner.autogp.controllers.MenuBarHandler;
 import com.hhuebner.autogp.controllers.RoomEditorController;
 import com.hhuebner.autogp.core.ControllerFactory;
 import com.hhuebner.autogp.core.InputHandler;
@@ -26,10 +27,11 @@ public class AutoGP extends Application {
         Camera camera = new Camera();
         GPEngine engine = new GPEngine(() -> AutoGP.this.mainLoader.getController());
         InputHandler inputHandler = new InputHandler(() -> AutoGP.this.mainLoader.getController(), engine);
+        MenuBarHandler menuBarHandler = new MenuBarHandler(stage);
 
         //main scene
         this.mainLoader = getFXMLLoader("auto_gp.fxml", MainSceneController.class,
-                new MainSceneController(inputHandler, () -> this.roomEditorScene, () -> this.furnitureSelectionScene, engine, camera));
+                new MainSceneController(inputHandler, () -> this.roomEditorScene, () -> this.furnitureSelectionScene, engine, camera, menuBarHandler));
 
         //room editor
         FXMLLoader roomEditorLoader = getFXMLLoader("room_editor.fxml", RoomEditorController.class, new RoomEditorController(engine));

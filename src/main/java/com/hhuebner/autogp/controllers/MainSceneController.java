@@ -30,6 +30,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.transform.Affine;
 import javafx.scene.transform.NonInvertibleTransformException;
+import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -44,6 +45,7 @@ public class MainSceneController {
     private int groundPlanId = 0;
     private final Supplier<Scene> roomEditorScene;
     private final Supplier<Scene> furnitureSelectionScene;
+    private final MenuBarHandler menuBarhandler;
 
     @FXML public TabPane tabPane;
 
@@ -67,6 +69,7 @@ public class MainSceneController {
 
     @FXML public Canvas canvas;
     @FXML public InformationLabel infoLabel;
+    @FXML public MenuBar menuBar;
 
     private final Camera cam;
     private InputHandler inputHandler;
@@ -74,12 +77,13 @@ public class MainSceneController {
     private Point2D prevMousePos = new Point2D(0, 0);
 
 
-    public MainSceneController(InputHandler inputHandler, Supplier<Scene> roomEditorScene, Supplier<Scene> furnitureSelectionScene, GPEngine engine, Camera cam) {
+    public MainSceneController(InputHandler inputHandler, Supplier<Scene> roomEditorScene, Supplier<Scene> furnitureSelectionScene, GPEngine engine, Camera cam, MenuBarHandler menuBarHandler) {
         this.inputHandler = inputHandler;
         this.roomEditorScene = roomEditorScene;
         this.furnitureSelectionScene = furnitureSelectionScene;
         this.engine = engine;
         this.cam = cam;
+        this.menuBarhandler = menuBarHandler;
     }
 
     @FXML
@@ -120,6 +124,7 @@ public class MainSceneController {
             this.infoLabel.update(this.inputHandler);
         });
 
+        this.menuBarhandler.initialize(menuBar);
     }
 
     @FXML
@@ -218,6 +223,18 @@ public class MainSceneController {
             value = Utility.convertUnitSq(value, this.inputUnitChoiceBaseArea.getValue(), UnitSq.METRES); //internally, everything is in metres
             this.inputHandler.gpSize = value;
         }
+    }
+
+    @FXML
+    public void onSaveFile(ActionEvent actionEvent) {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Grundriss Speichern");
+
+
+    }
+
+    @FXML
+    public void onOpenFile(ActionEvent actionEvent) {
     }
 
     //CANVAS
