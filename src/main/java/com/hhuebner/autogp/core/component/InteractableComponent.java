@@ -34,10 +34,10 @@ public abstract class InteractableComponent extends PlanComponent {
     }
 
     public void renderSelectionOutline(GraphicsContext ctx, Camera cam, InputHandler inputHandler) {
-        double x = Utility.calcPixels(this.bb.x, inputHandler) * CELL_SIZE;
-        double x2 = Utility.calcPixels(this.bb.x2, inputHandler) * CELL_SIZE;
-        double y = Utility.calcPixels(this.bb.y, inputHandler) * CELL_SIZE;
-        double y2 = Utility.calcPixels(this.bb.y2, inputHandler) * CELL_SIZE;
+        double x = this.bb.x * CELL_SIZE;
+        double x2 = this.bb.x2 * CELL_SIZE;
+        double y = this.bb.y * CELL_SIZE;
+        double y2 = this.bb.y2 * CELL_SIZE;
 
         ctx.save();
         ctx.setStroke(Color.BLACK);
@@ -48,13 +48,13 @@ public abstract class InteractableComponent extends PlanComponent {
 
     public void renderInteractionBox(GraphicsContext ctx, Camera cam, InputHandler inputHandler) {
         double boxSize = 10.0 / cam.getScaleX();
-        double width = Utility.calcPixels(this.bb.getWidth(), inputHandler) * CELL_SIZE;
-        double height = Utility.calcPixels(this.bb.getHeight(), inputHandler) * CELL_SIZE;
+        double width = this.bb.getWidth() * CELL_SIZE;
+        double height = this.bb.getHeight() * CELL_SIZE;
 
-        double x = Utility.calcPixels(this.bb.x, inputHandler) * CELL_SIZE;
-        double x2 = Utility.calcPixels(this.bb.x2, inputHandler) * CELL_SIZE;
-        double y = Utility.calcPixels(this.bb.y, inputHandler) * CELL_SIZE;
-        double y2 = Utility.calcPixels(this.bb.y2, inputHandler) * CELL_SIZE;
+        double x = this.bb.x * CELL_SIZE;
+        double x2 = this.bb.x2 * CELL_SIZE;
+        double y = this.bb.y * CELL_SIZE;
+        double y2 = this.bb.y2 * CELL_SIZE;
 
         ctx.save();
         ctx.setStroke(Color.BLACK);

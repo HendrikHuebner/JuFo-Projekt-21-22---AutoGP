@@ -70,11 +70,11 @@ public class DoorComponent extends InteractableComponent {
         double width = side.isHorizontal() ? this.bb.y2 - this.bb.y : this.bb.x2 - this.bb.x;
 
         ctx.save();
-        double scaledX = Utility.calcPixels(bb.x, handler) * CELL_SIZE;
-        double scaledY = Utility.calcPixels(bb.y, handler) * CELL_SIZE;
-        double scaledW = Utility.calcPixels(this.bb.getWidth() , handler) * CELL_SIZE;
-        double scaledH = Utility.calcPixels(this.bb.getHeight(), handler) * CELL_SIZE;
-        double scaledC = Utility.calcPixels(this.clearance, handler) * CELL_SIZE;
+        double scaledX = bb.x * CELL_SIZE;
+        double scaledY = bb.y * CELL_SIZE;
+        double scaledW = this.bb.getWidth() * CELL_SIZE;
+        double scaledH = this.bb.getHeight() * CELL_SIZE;
+        double scaledC = this.clearance* CELL_SIZE;
 
         if(OptionsHandler.INSTANCE.DEBUG) {
             ctx.setStroke(Color.BLUE);
@@ -105,20 +105,20 @@ public class DoorComponent extends InteractableComponent {
 
         if(!openingLeft) {
             if(side != Direction.WEST) {
-                ctx.translate(Utility.calcPixels(width, handler) * CELL_SIZE, 0);
+                ctx.translate(width* CELL_SIZE, 0);
             }
         } else {
             if (side == Direction.WEST) {
-                ctx.translate(- Utility.calcPixels(width, handler) * CELL_SIZE, 0);
+                ctx.translate(- width* CELL_SIZE, 0);
             }
         }
 
         if(!openingLeft) ctx.scale(-1, 1);
 
-        double scaledR = Utility.calcPixels(2 * width, handler) * CELL_SIZE;
+        double scaledR = 2 * width* CELL_SIZE;
 
         ctx.strokeArc(side.isHorizontal() ? -scaledH : -scaledW, (side.isHorizontal() ? -scaledH : -scaledW)
-                + Utility.calcPixels(OptionsHandler.INSTANCE.innerWallWidth.get(), handler) * CELL_SIZE,
+                + OptionsHandler.INSTANCE.innerWallWidth.get()* CELL_SIZE,
 
                 scaledR, scaledR, 270, 90, ArcType.ROUND);
         ctx.restore();

@@ -103,7 +103,7 @@ public class CanvasRenderer extends AnimationTimer {
         int dx = 1 + cellCountX / 20;
         double startX = -this.cam.getX() + this.cam.getX() % (CELL_SIZE * dx);
         for(int i = 0; i < cellCountX; i += dx) {
-            ctx.fillText(String.format("%.1f", Utility.calcPixels(startX/CELL_SIZE + i, this.inputHandler)),
+            ctx.fillText(String.format("%.1f", (startX/CELL_SIZE + i) / inputHandler.displayUnit.factor / inputHandler.globalScale),
                     (this.cam.getX() % (CELL_SIZE * dx) + i * CELL_SIZE) * cam.getScaleX(), canvas.getHeight() - 10);
         }
 
@@ -114,7 +114,7 @@ public class CanvasRenderer extends AnimationTimer {
         int dy = 1 + cellCountY / 20;
         double startY = -this.cam.getY() + this.cam.getY() % (CELL_SIZE * dy);
         for(int i = 0; i < cellCountY; i += dy) {
-            ctx.fillText(String.format("%.1f", Utility.calcPixels(startY/CELL_SIZE + i, this.inputHandler)), 10,
+            ctx.fillText(String.format("%.1f", (startY/CELL_SIZE + i) / inputHandler.displayUnit.factor / inputHandler.globalScale), 10,
                     (this.cam.getY() % (CELL_SIZE * dy) + i * CELL_SIZE) * cam.getScaleY());
         }
 

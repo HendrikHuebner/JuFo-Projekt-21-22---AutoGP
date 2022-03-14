@@ -11,13 +11,18 @@ public class GroundPlan {
     private final int groundPlanID;
 
     public double gpSize;
-    private int componentIdCounter = 0;
+    private int componentIdCounter;
     public final List<RoomComponent> components = new ArrayList<>();
 
-    public GroundPlan(String name, int id, double gpSize) {
+    public GroundPlan(String name, int groundPlanID, double gpSize) {
+        this(name, groundPlanID, gpSize, 0);
+    }
+
+    public GroundPlan(String name, int groundPlanID, double gpSize, int componentIdCounter) {
         this.name = name;
-        this.groundPlanID = id;
+        this.groundPlanID = groundPlanID;
         this.gpSize = gpSize;
+        this.componentIdCounter = componentIdCounter;
     }
 
     boolean intersectsAnyPlacedRoom(BoundingBox bb) {
@@ -30,5 +35,9 @@ public class GroundPlan {
 
     public int getNextID() {
         return this.componentIdCounter++;
+    }
+
+    public int getID() {
+        return groundPlanID;
     }
 }

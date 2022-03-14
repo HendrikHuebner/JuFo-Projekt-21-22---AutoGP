@@ -11,6 +11,7 @@ public class OptionsHandler {
 
     public static final OptionsHandler INSTANCE = new OptionsHandler();
     public final boolean DEBUG = false;
+    public final boolean DEBUG_ROOM_GEN = true;
 
     private final List<Option<?>> options = new ArrayList<>();
 

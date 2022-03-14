@@ -29,12 +29,12 @@ public class FurnitureComponent extends InteractableComponent {
     public void render(GraphicsContext ctx, InputHandler inputHandler) {
         ctx.save();
 
-        double scaledX = Utility.calcPixels(bb.x, inputHandler) * CELL_SIZE;
-        double scaledY = Utility.calcPixels(bb.y, inputHandler) * CELL_SIZE;
-        double scaledW = Utility.calcPixels(bb.getWidth(), inputHandler) * CELL_SIZE;
-        double scaledH = Utility.calcPixels(bb.getHeight(), inputHandler) * CELL_SIZE;
-        double scaledItemW = Utility.calcPixels(item.getWidth(), inputHandler) * CELL_SIZE;
-        double scaledItemH = Utility.calcPixels(item.getHeight(), inputHandler) * CELL_SIZE;
+        double scaledX = bb.x * CELL_SIZE;
+        double scaledY = bb.y* CELL_SIZE;
+        double scaledW = bb.getWidth() * CELL_SIZE;
+        double scaledH = bb.getHeight() * CELL_SIZE;
+        double scaledItemW = item.getWidth() * CELL_SIZE;
+        double scaledItemH = item.getHeight() * CELL_SIZE;
 
         if (OptionsHandler.INSTANCE.DEBUG) {
             ctx.setStroke(Color.RED);

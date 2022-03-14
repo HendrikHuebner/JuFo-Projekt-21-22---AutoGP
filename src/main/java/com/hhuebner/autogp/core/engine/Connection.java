@@ -1,5 +1,6 @@
 package com.hhuebner.autogp.core.engine;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.hhuebner.autogp.core.component.RoomComponent;
 import com.hhuebner.autogp.core.util.Direction;
 
@@ -7,7 +8,7 @@ import java.util.Arrays;
 
 import static com.hhuebner.autogp.core.util.Utility.epsEquals;
 
-public record Connection(RoomComponent roomComponent, Direction side, double start, double end) {
+public record Connection(@JsonBackReference RoomComponent roomComponent, Direction side, double start, double end) {
 
 
     public static Connection getConnection(RoomComponent r1, RoomComponent r2) {

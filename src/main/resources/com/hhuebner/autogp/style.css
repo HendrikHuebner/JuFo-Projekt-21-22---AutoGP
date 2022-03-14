@@ -10,15 +10,19 @@
 .text-field {
     -fx-background-color: #ffffff;
     -fx-border-radius: 2px;
+    -fx-border-color: #c0bebc;
+    -fx-border-width: 1px;
 }
 
 
 .menu-bar {
     -fx-background-color: #ffffff;
-    -fx-effect: dropshadow(one-pass-box, #333334, 3, 1, 0, 5);
+    -fx-effect: dropshadow(one-pass-box, #c4c2bf, 3, 1, 0, 5);
 }
 
-
+.bg {
+    -fx-background-color: #e8e7e6;
+}
 
 .table-view .column-header {
     -fx-background-color: #ffffff;

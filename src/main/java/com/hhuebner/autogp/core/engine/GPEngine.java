@@ -3,14 +3,17 @@ package com.hhuebner.autogp.core.engine;
 import com.google.common.collect.ArrayListMultimap;
 import com.google.common.collect.ListMultimap;
 import com.hhuebner.autogp.controllers.MainSceneController;
+import com.hhuebner.autogp.core.InputHandler;
 import com.hhuebner.autogp.core.component.*;
 import com.hhuebner.autogp.core.component.furniture.FurnitureItem;
 import com.hhuebner.autogp.core.util.Direction;
+import com.hhuebner.autogp.core.util.UnitSq;
 import com.hhuebner.autogp.core.util.Utility;
 import com.hhuebner.autogp.options.OptionsHandler;
 import com.hhuebner.autogp.ui.widgets.GroundPlanTab;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.control.Tab;
 
 import java.util.*;
 import java.util.function.Supplier;
@@ -77,13 +80,15 @@ public class GPEngine {
             for(RoomComponent component : gp.components) {
                 for(AnchorPoint a : component.getAnchors(gp.components)) {
                     anchors.add(a);
-                    if(a.neighborTopRight.isPresent())
+                    if(a.neighborTopLeft.isPresent())
                         cornerCount++;
                 }
             }
 
+            if(cornerCount > 2) return null;
+
             Collections.shuffle(anchors, rand);
-            if(cornerCount >= 2) anchors.sort(Comparator.comparing(a -> a.neighborTopLeft.isEmpty()));
+            anchors.sort(Comparator.comparing(a -> a.neighborTopLeft.isEmpty()));
 
             for(AnchorPoint a : anchors) {
                 if(a.neighborTopLeft.isEmpty() && a.neighborBottomLeft.isPresent()) continue;
@@ -115,8 +120,8 @@ public class GPEngine {
 
                     boundingBox.roundToAdjacentBB(a.directionFacing, a.room.getBoundingBox());
 
-                    a.neighborTopLeft.ifPresent(n -> {
-                        boundingBox.roundToAdjacentBB(a.side, n.getBoundingBox());
+                    a.neighborTopLeft.ifPresent(r -> {
+                        boundingBox.roundToAdjacentBB(a.side, r.getBoundingBox());
                     });
 
                     gp.components.add(new RoomComponent(room, boundingBox, gp.getNextID()));
@@ -125,6 +130,7 @@ public class GPEngine {
                 }
             }
         }
+
 
         //generate interior & furniture
         ListMultimap<RoomComponent, Connection> connections = ArrayListMultimap.create();
@@ -409,7 +415,7 @@ public class GPEngine {
         return null;
     }
 
-    public void calculateRoomSizes(double gpSize) {
+    public void calculateRoomSizes(double gpSize, UnitSq gpSizeUnit) {
         double sum = 0;
         int count = 0;
 
@@ -424,7 +430,7 @@ public class GPEngine {
 
         for(Room room : this.rooms) {
             if(room.size == 0) {
-                room.size = Math.round(10 * (room.type.defaultSize + (gpSize - sum) / count)) / 10;
+                room.size = Math.round(10 * (room.type.defaultSize + (Utility.convertUnitSq(gpSize, gpSizeUnit, UnitSq.METRES) - sum) / count)) / 10;
 
                 this.mainController.get().roomsOverviewTable.refresh();
             }
@@ -443,10 +449,6 @@ public class GPEngine {
         }
 
         return null;
-    }
-
-    public void onSceneLoad() {
-        //mainController.get().roomsOverviewTable.getItems().addAll(gp.rooms);
     }
 
     public GroundPlan getSelectedGP() {
@@ -472,5 +474,21 @@ public class GPEngine {
             connections.sort(Comparator.comparingDouble(c -> c.start()));
             r.getWallComponent().setConnections(connections);
         }
+    }
+
+    public void updateSizes(double gpSize, UnitSq gpSizeUnit) {
+        double sum = 0;
+        for(Room room : this.rooms) {
+            sum += room.type.defaultSize;
+        }
+        for(Room room : this.rooms) {
+            room.size = Math.round(10.0 * (room.type.defaultSize + (Utility.convertUnitSq(gpSize, gpSizeUnit, UnitSq.METRES) - sum) / this.rooms.size())) / 10.0;
+            this.mainController.get().roomsOverviewTable.refresh();
+        }
+    }
+
+    public void addGroundPlan(GroundPlan groundPlan) {
+        this.groundPlanMap.put(groundPlan.getNextID(), groundPlan);
+        this.mainController.get().addGroundPlanTab(groundPlan);
     }
 }

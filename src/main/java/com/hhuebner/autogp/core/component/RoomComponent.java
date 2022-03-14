@@ -1,5 +1,7 @@
 package com.hhuebner.autogp.core.component;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.hhuebner.autogp.core.InputHandler;
 import com.hhuebner.autogp.core.engine.AnchorPoint;
 import com.hhuebner.autogp.core.engine.BoundingBox;
@@ -30,9 +32,12 @@ public class RoomComponent extends InteractableComponent {
 
     public List<AnchorPoint> getAnchors(List<RoomComponent> graph) {
         List<AnchorPoint> list = new ArrayList<>();
+
         for(Direction facing : Direction.values()) {
-            list.add(new AnchorPoint(graph, this, facing.rotateCW(), facing));
-            list.add(new AnchorPoint(graph,this, facing.rotateCCW(), facing));
+            AnchorPoint aCW = AnchorPoint.create(graph, this, facing.rotateCW(), facing);
+            AnchorPoint aCCW = AnchorPoint.create(graph, this, facing.rotateCCW(), facing);
+            if(aCW != null) list.add(aCW);
+            if(aCCW != null) list.add(aCCW);
         }
 
         return list;

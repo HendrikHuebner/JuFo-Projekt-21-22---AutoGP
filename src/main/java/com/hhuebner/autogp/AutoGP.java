@@ -15,6 +15,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 
 public class AutoGP extends Application {
 
@@ -23,11 +24,11 @@ public class AutoGP extends Application {
     private FXMLLoader mainLoader = null;
 
     @Override
-    public void start(Stage stage) throws IOException { //TODO: refactor
+    public void start(Stage stage) throws IOException {
         Camera camera = new Camera();
         GPEngine engine = new GPEngine(() -> AutoGP.this.mainLoader.getController());
         InputHandler inputHandler = new InputHandler(() -> AutoGP.this.mainLoader.getController(), engine);
-        MenuBarHandler menuBarHandler = new MenuBarHandler(stage);
+        MenuBarHandler menuBarHandler = new MenuBarHandler(stage, engine);
 
         //main scene
         this.mainLoader = getFXMLLoader("auto_gp.fxml", MainSceneController.class,
@@ -49,17 +50,25 @@ public class AutoGP extends Application {
         stage.setScene(main);
         stage.show();
 
-        engine.onSceneLoad();
-
         CanvasRenderer canvasRenderer = new CanvasRenderer(((MainSceneController)mainLoader.getController()).canvas, inputHandler, engine, camera);
         canvasRenderer.start();
     }
 
     public static <T> FXMLLoader getFXMLLoader(String path, Class clazz, T controller) {
-        ControllerFactory controllerFactory = new ControllerFactory(); //Not necessary anymore, need to remove
-        controllerFactory.registerController(clazz, controller);
         FXMLLoader loader = new FXMLLoader(AutoGP.class.getResource(path));
-        controllerFactory.setControllers(loader);
+        loader.setControllerFactory((c) -> {
+            if(c == clazz) {
+                return controller;
+            } else {
+                try {
+                    return c.getDeclaredConstructor().newInstance();
+                } catch (IllegalAccessException | NoSuchMethodException | InvocationTargetException | InstantiationException e) {
+                    e.printStackTrace();
+                    return null;
+                }
+            }
+        });
+
         return loader;
     }
 

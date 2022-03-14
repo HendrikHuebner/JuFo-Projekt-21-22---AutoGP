@@ -1,11 +1,13 @@
 package com.hhuebner.autogp.core.component.furniture;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.hhuebner.autogp.ui.symbols.SymbolRenderer;
 
 public class FurnitureItem {
 
     private final String name;
     private final boolean cornerGenerating;
+    @JsonIgnore
     private final SymbolRenderer renderer;
     private final double width;
     private final double height;

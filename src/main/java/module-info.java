@@ -2,11 +2,16 @@ module com.hhuebner.autogp {
     requires javafx.controls;
     requires javafx.fxml;
     requires com.google.common;
+    requires com.fasterxml.jackson.annotation;
+    requires com.fasterxml.jackson.core;
+    requires com.fasterxml.jackson.databind;
 
-
-    opens com.hhuebner.autogp to javafx.fxml;
-    opens com.hhuebner.autogp.core.engine to javafx.base;
-    opens com.hhuebner.autogp.core.component.furniture to javafx.base;
+    opens com.hhuebner.autogp to javafx.fxml, com.fasterxml.jackson.databind;
+    opens com.hhuebner.autogp.core.engine to javafx.base, com.fasterxml.jackson.databind;
+    opens com.hhuebner.autogp.core.component to com.fasterxml.jackson.databind;
+    opens com.hhuebner.autogp.ui.symbols to com.fasterxml.jackson.databind;
+    opens com.hhuebner.autogp.core.util to com.fasterxml.jackson.databind;
+    opens com.hhuebner.autogp.core.component.furniture to javafx.base, com.fasterxml.jackson.databind;
     opens com.hhuebner.autogp.controllers to javafx.fxml;
 
     exports com.hhuebner.autogp;

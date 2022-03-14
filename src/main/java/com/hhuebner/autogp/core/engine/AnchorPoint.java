@@ -17,15 +17,20 @@ public class AnchorPoint {
     public Optional<RoomComponent> neighborBottomLeft = Optional.empty();
     public Optional<RoomComponent> neighborBottomRight = Optional.empty();
 
-    public AnchorPoint(List<RoomComponent> graph, RoomComponent room, Direction side, Direction directionFacing) {
+    public AnchorPoint(RoomComponent room, Direction side, Direction directionFacing) {
         this.room = room;
         this.side = side;
         this.directionFacing = directionFacing;
-
-        this.calcNeighbors(graph);
     }
 
-    private void calcNeighbors(List<RoomComponent> graph) {
+    public static AnchorPoint create(List<RoomComponent> graph, RoomComponent room, Direction side, Direction directionFacing) {
+        AnchorPoint a = new AnchorPoint(room, side, directionFacing);
+        boolean obstructed = a.calcNeighbors(graph);
+        if(obstructed) return null;
+        else return a;
+    }
+
+    private boolean calcNeighbors(List<RoomComponent> graph) {
         final double margin = 0.01;
         double s = directionFacing.isHorizontal() ? room.getBoundingBox().getWidth() : room.getBoundingBox().getHeight();
         double lx = this.getX() - this.directionFacing.dx * margin;
@@ -35,7 +40,9 @@ public class AnchorPoint {
 
         for(RoomComponent r : graph) {
             BoundingBox bb = r.getBoundingBox();
-            if(bb.containsPoint(lx + this.side.dx * margin, ly + this.side.dy * margin)) {
+            if(bb.containsPoint(lx + (this.side.dx + 2 * this.directionFacing.dx) * margin, ly + (this.side.dy + 2 * this.directionFacing.dy) * margin)) {
+                return true;
+            } else if(bb.containsPoint(lx + this.side.dx * margin, ly + this.side.dy * margin)) {
                 this.neighborTopLeft = Optional.of(r);
             } else if (bb.containsPoint(lx - this.side.dx * margin, ly - this.side.dy * margin)) {
                 this.neighborBottomLeft = Optional.of(r);
@@ -45,6 +52,8 @@ public class AnchorPoint {
                 this.neighborBottomRight = Optional.of(r);
             }
         }
+
+        return false;
     }
 
     public double getX() {

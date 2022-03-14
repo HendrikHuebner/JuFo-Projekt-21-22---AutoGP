@@ -8,6 +8,7 @@ import com.hhuebner.autogp.core.engine.BoundingBox;
 import com.hhuebner.autogp.core.engine.DragMode;
 import com.hhuebner.autogp.core.engine.GPEngine;
 import com.hhuebner.autogp.core.util.Unit;
+import com.hhuebner.autogp.core.util.UnitSq;
 import com.hhuebner.autogp.core.util.Utility;
 import com.hhuebner.autogp.options.OptionsHandler;
 import com.hhuebner.autogp.ui.widgets.GroundPlanTab;
@@ -27,6 +28,7 @@ public class InputHandler {
     public Unit displayUnit = Unit.METRES;
     public double globalScale = 1.0;
     public double gpSize = OptionsHandler.INSTANCE.defaultGPSize.get();
+    public UnitSq gpSizeUnit = UnitSq.METRES;
 
     private Tool tool = Tool.MOVE;
     public Optional<RoomComponent> selectedRoom = Optional.empty();
@@ -65,10 +67,10 @@ public class InputHandler {
         if(bb != null) {
             final double o = 12; //half of the side length of the clickable box
 
-            double x = Utility.calcPixels(bb.x, this) * CELL_SIZE;
-            double x2 = Utility.calcPixels(bb.x2, this) * CELL_SIZE;
-            double y = Utility.calcPixels(bb.y, this) * CELL_SIZE;
-            double y2 = Utility.calcPixels(bb.y2, this) * CELL_SIZE;
+            double x = bb.x * CELL_SIZE;
+            double x2 = bb.x2 * CELL_SIZE;
+            double y = bb.y * CELL_SIZE;
+            double y2 = bb.y2 * CELL_SIZE;
             double w = (x2 - x) / 2; //half width of bb
             double h = (y2 - y) / 2; //half height of bb
 
@@ -87,8 +89,8 @@ public class InputHandler {
             }
         }
 
-        double mouseX = mouseXAbsolute / (this.displayUnit.factor * GPEngine.CELL_SIZE * globalScale);
-        double mouseY = mouseYAbsolute / (this.displayUnit.factor * GPEngine.CELL_SIZE * globalScale);
+        double mouseX = mouseXAbsolute / GPEngine.CELL_SIZE;
+        double mouseY = mouseYAbsolute / GPEngine.CELL_SIZE;
 
         if(this.selectedRoom.isEmpty()) {
             for(RoomComponent roomComponent : this.engine.getSelectedGP().components) {
@@ -115,7 +117,7 @@ public class InputHandler {
                 this.selectedComponent = Optional.empty();
 
                 if (this.selectedRoom.isPresent() && this.selectedRoom.get().equals(component)) {
-                    //move
+                    //deselect & move
                     this.selectedDragMode = Optional.of(DragMode.MOVE);
 
                 } else {
@@ -127,7 +129,7 @@ public class InputHandler {
                 //room must be selected already
                 if (this.selectedComponent.isPresent() && this.selectedComponent.get().equals(component)) {
                     this.selectedDragMode = Optional.of(DragMode.MOVE);
-
+                    return false;
                 } else {
                     this.selectedComponent = Optional.of(component);
                 }
@@ -142,6 +144,7 @@ public class InputHandler {
     public void clearSelectedComponent() {
         this.selectedComponent = Optional.empty();
         this.selectedRoom = Optional.empty();
+        this.scene.get().onDeselectRoom();
     }
 
     public void handleCursorDrag(double startX, double startY, double currentX, double currentY) {
@@ -199,7 +202,6 @@ public class InputHandler {
         CURSOR,
         MOVE,
         SELECTION,
-        RULER;
     }
 }
 

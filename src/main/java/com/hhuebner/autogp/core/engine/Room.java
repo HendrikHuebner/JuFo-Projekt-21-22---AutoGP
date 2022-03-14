@@ -1,20 +1,35 @@
 package com.hhuebner.autogp.core.engine;
 
 
+import com.fasterxml.jackson.core.JacksonException;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
+import com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
+import com.fasterxml.jackson.databind.jsontype.TypeSerializer;
+import com.fasterxml.jackson.databind.node.IntNode;
 import com.hhuebner.autogp.core.component.furniture.FurnitureItem;
 import com.hhuebner.autogp.core.util.Unit;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 public class Room {
 
-    public RoomType type;
-    public ObservableList<FurnitureItem> furniture;
-    public double size;
     public String name;
+    public RoomType type;
+    public double size;
+
+    @JsonSerialize(using = Room.RoomSerializer.class)
+    @JsonDeserialize(using = Room.RoomDeserializer.class)
+    public ObservableList<FurnitureItem> furniture;
     public final int generationPriority;
 
     //DEBUG
@@ -88,5 +103,44 @@ public class Room {
         }
     }
 
+    public static class RoomSerializer extends JsonSerializer<ObservableList<FurnitureItem>> {
+
+        public RoomSerializer() {
+            super();
+        }
+
+        @Override
+        public void serialize(ObservableList<FurnitureItem> value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+            gen.writeStartArray();
+            for(FurnitureItem fi : value)
+                gen.writeObject(fi);
+
+            gen.writeEndArray();
+        }
+
+        @Override
+        public void serializeWithType(ObservableList<FurnitureItem> value, JsonGenerator gen, SerializerProvider serializers, TypeSerializer typeSer) throws IOException {
+            this.serialize(value, gen, serializers);
+        }
+    }
+
+    public static class RoomDeserializer extends JsonDeserializer<ObservableList<FurnitureItem>> {
+
+        public RoomDeserializer() {
+            super();
+        }
+
+        @Override
+        public ObservableList<FurnitureItem> deserialize(JsonParser p, DeserializationContext ctx) throws IOException {
+            List<FurnitureItem> list = new ArrayList<>();
+            p.readValuesAs(FurnitureItem.class).forEachRemaining(f -> list.add(f));
+            return FXCollections.observableArrayList(list);
+        }
+
+        @Override
+        public Object deserializeWithType(JsonParser p, DeserializationContext ctx, TypeDeserializer typeDeserializer) throws IOException {
+            return this.deserialize(p, ctx);
+        }
+    }
 
 }

@@ -49,7 +49,6 @@ public class MainSceneController {
 
     @FXML public TabPane tabPane;
 
-    @FXML public ChoiceBox<Unit> inputUnitChoice;
     @FXML public ChoiceBox<UnitSq> inputUnitChoiceBaseArea;
     @FXML public ChoiceBox<Unit> outputUnitChoice;
 
@@ -107,11 +106,9 @@ public class MainSceneController {
         //Choice boxes
         ObservableList<Unit> units = FXCollections.observableArrayList(Unit.values());
         ObservableList<UnitSq> unitsSq = FXCollections.observableArrayList(UnitSq.values());
-        inputUnitChoice.setItems(units);
         outputUnitChoice.setItems(units);
         inputUnitChoiceBaseArea.setItems(unitsSq);
 
-        inputUnitChoice.setValue(Unit.METRES);
         outputUnitChoice.setValue(Unit.METRES);
         inputUnitChoiceBaseArea.setValue(UnitSq.METRES);
         
@@ -119,9 +116,9 @@ public class MainSceneController {
             this.inputHandler.displayUnit = outputUnitChoice.getValue();
             this.infoLabel.update(this.inputHandler);
         });
-
-        inputUnitChoice.setOnAction((event) ->  {
-            this.infoLabel.update(this.inputHandler);
+        inputUnitChoiceBaseArea.setOnAction(event -> {
+            this.inputHandler.gpSizeUnit = inputUnitChoiceBaseArea.getValue();
+            this.engine.updateSizes(inputHandler.gpSize, inputHandler.gpSizeUnit);
         });
 
         this.menuBarhandler.initialize(menuBar);
@@ -131,13 +128,14 @@ public class MainSceneController {
     public void onAddRoom(ActionEvent event) {
         Stage dialog = new Stage(StageStyle.DECORATED);
         dialog.setResizable(false);
-        dialog.setTitle("Raum Hinzufügen");
         dialog.initModality(Modality.APPLICATION_MODAL);
 
         //select scene to show
         if(this.inputHandler.selectedRoom.isPresent()) {
+            dialog.setTitle("Gegenstand Hinzufügen");
             dialog.setScene(this.furnitureSelectionScene.get());
         } else {
+            dialog.setTitle("Raum Hinzufügen");
             dialog.setScene(this.roomEditorScene.get());
         }
 
@@ -148,17 +146,20 @@ public class MainSceneController {
     public void onGenerate(ActionEvent event) {
         Random seedGen = new Random();
 
-        int limit = 10000; OptionsHandler.INSTANCE.generationTryLimit.get();
+        int limit = 10000;
+        OptionsHandler.INSTANCE.generationTryLimit.get();
         long start = System.currentTimeMillis();
         int tries = 0;
         long seed = 0;
         int id = this.groundPlanId++;
 
-        this.engine.calculateRoomSizes(inputHandler.gpSize);
+        this.engine.calculateRoomSizes(inputHandler.gpSize, inputHandler.gpSizeUnit);
+
+        GroundPlan gp = null;
 
         for (int i = 0; i < limit; i++) {
             seed = seedGen.nextLong();
-            GroundPlan gp = this.engine.generate(id,"gp", inputHandler.gpSize, seed);
+            gp = this.engine.generate(id, "gp", inputHandler.gpSize, seed + 1);
 
             if (gp != null) {
                 tries += i + 1;
@@ -172,10 +173,7 @@ public class MainSceneController {
         long timeElapsed = finish - start;
         AutoGP.log("seed:", seed, "avg time: ", timeElapsed / 300.0, "avg tries: ", tries / 300.0);
 
-        Tab tab = new GroundPlanTab(id, "Grundriss Nr. " + id, inputHandler);
-        tabPane.getTabs().add(tab);
-        tabPane.getSelectionModel().select(tab);
-
+        addGroundPlanTab(gp);
         inputHandler.clearSelectedComponent();
     }
 
@@ -188,7 +186,7 @@ public class MainSceneController {
         }
         catch(NumberFormatException e) {}
         finally {
-            value = Utility.convertUnit(value, this.inputUnitChoice.getValue(), Unit.METRES); //internally, everything is in metres 
+            value = Utility.convertUnit(value, this.outputUnitChoice.getValue(), Unit.METRES); //internally, everything is in metres
             this.inputHandler.globalScale = value;
         }
     }
@@ -208,9 +206,6 @@ public class MainSceneController {
         this.inputHandler.setTool(InputHandler.Tool.SELECTION);
     }
 
-    public void onClickRulerTool(ActionEvent actionEvent) {
-        this.inputHandler.setTool(InputHandler.Tool.RULER);
-    }
 
     public void onSetArea(KeyEvent event) {
         String string = ((TextField)event.getSource()).getText();
@@ -222,20 +217,10 @@ public class MainSceneController {
         finally {
             value = Utility.convertUnitSq(value, this.inputUnitChoiceBaseArea.getValue(), UnitSq.METRES); //internally, everything is in metres
             this.inputHandler.gpSize = value;
+            this.engine.updateSizes(inputHandler.gpSize, inputHandler.gpSizeUnit);
         }
     }
 
-    @FXML
-    public void onSaveFile(ActionEvent actionEvent) {
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Grundriss Speichern");
-
-
-    }
-
-    @FXML
-    public void onOpenFile(ActionEvent actionEvent) {
-    }
 
     //CANVAS
 
@@ -305,5 +290,15 @@ public class MainSceneController {
     public void onSelectRoom(RoomComponent component) {
         this.furnitureOverviewTable.setItems(component.room.furniture);
         this.tableScrollPane.setContent(this.furnitureOverviewTable);
+    }
+
+    public void onDeselectRoom() {
+        this.tableScrollPane.setContent(this.roomsOverviewTable);
+    }
+
+    public void addGroundPlanTab(GroundPlan groundPlan) {
+        Tab tab = new GroundPlanTab(groundPlan.getID(), "Grundriss Nr. " + groundPlan.getID(), this.inputHandler);
+        tabPane.getTabs().add(tab);
+        tabPane.getSelectionModel().select(tab);
     }
 }

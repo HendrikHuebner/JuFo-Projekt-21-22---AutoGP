@@ -1,5 +1,7 @@
 package com.hhuebner.autogp.core.component;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.hhuebner.autogp.core.InputHandler;
 import com.hhuebner.autogp.core.engine.BoundingBox;
 import com.hhuebner.autogp.core.engine.Connection;
@@ -30,6 +32,7 @@ public class WallComponent extends PlanComponent {
     }
 
     private final RoomComponent roomComponent;
+    @JsonManagedReference
     private List<Connection> connections = new ArrayList<>();
     private List<WallPosition> windows = new ArrayList<>();
 
@@ -143,10 +146,10 @@ public class WallComponent extends PlanComponent {
         final double INNER_WALL_THICKNESS = OptionsHandler.INSTANCE.innerWallWidth.get();
         BoundingBox bb = component.getBoundingBox();
 
-        double scaledX = Utility.calcPixels( bb.x + INNER_WALL_THICKNESS, handler) * CELL_SIZE;
-        double scaledY = Utility.calcPixels(bb.y + INNER_WALL_THICKNESS, handler) * CELL_SIZE;
-        double scaledW = Utility.calcPixels(bb.getWidth() - 2 * INNER_WALL_THICKNESS, handler) * CELL_SIZE;
-        double scaledH = Utility.calcPixels(bb.getHeight() - 2 * INNER_WALL_THICKNESS, handler) * CELL_SIZE;
+        double scaledX = ( bb.x + INNER_WALL_THICKNESS) * CELL_SIZE;
+        double scaledY = (bb.y + INNER_WALL_THICKNESS) * CELL_SIZE;
+        double scaledW = (bb.getWidth() - 2 * INNER_WALL_THICKNESS) * CELL_SIZE;
+        double scaledH = (bb.getHeight() - 2 * INNER_WALL_THICKNESS) * CELL_SIZE;
 
 
         if(OptionsHandler.INSTANCE.colorRooms.get()) {
@@ -165,10 +168,10 @@ public class WallComponent extends PlanComponent {
     }
 
     private void drawScaledLine(GraphicsContext ctx, double x, double y, double x2, double y2, InputHandler handler) {
-        double scaledX = Utility.calcPixels(x, handler) * CELL_SIZE;
-        double scaledY = Utility.calcPixels(y, handler) * CELL_SIZE;
-        double scaledX2 = Utility.calcPixels(x2, handler) * CELL_SIZE;
-        double scaledY2 = Utility.calcPixels(y2, handler) * CELL_SIZE;
+        double scaledX = x * CELL_SIZE;
+        double scaledY = y * CELL_SIZE;
+        double scaledX2 = x2 * CELL_SIZE;
+        double scaledY2 = y2 * CELL_SIZE;
         ctx.strokeLine(scaledX, scaledY, scaledX2, scaledY2);
     }
 
