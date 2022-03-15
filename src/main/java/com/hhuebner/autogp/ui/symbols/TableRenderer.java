@@ -1,7 +1,9 @@
 package com.hhuebner.autogp.ui.symbols;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import javafx.scene.canvas.GraphicsContext;
 
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 public class TableRenderer extends SymbolRenderer {
 
     @Override

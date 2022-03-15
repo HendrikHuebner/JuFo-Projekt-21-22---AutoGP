@@ -1,19 +1,12 @@
 package com.hhuebner.autogp.controllers;
 
-import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.jsontype.BasicPolymorphicTypeValidator;
-import com.fasterxml.jackson.databind.jsontype.PolymorphicTypeValidator;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.hhuebner.autogp.core.component.*;
-import com.hhuebner.autogp.core.component.furniture.FurnitureItem;
-import com.hhuebner.autogp.core.engine.BoundingBox;
 import com.hhuebner.autogp.core.engine.GPEngine;
 import com.hhuebner.autogp.core.engine.GroundPlan;
-import com.hhuebner.autogp.core.engine.Room;
 import com.hhuebner.autogp.options.Option;
 import com.hhuebner.autogp.options.OptionsHandler;
-import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
@@ -21,9 +14,7 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.io.*;
-import java.lang.reflect.Type;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class MenuBarHandler {
@@ -38,12 +29,7 @@ public class MenuBarHandler {
         this.engine = engine;
 
         this.objectMapper.registerSubtypes(PlanComponent.class, FurnitureComponent.class, DoorComponent.class, WallComponent.class);
-
-        PolymorphicTypeValidator ptv = BasicPolymorphicTypeValidator.builder()
-                .allowIfBaseType(PlanComponent.class)
-                .build();
-
-        this.objectMapper.activateDefaultTyping(ptv, ObjectMapper.DefaultTyping.NON_FINAL);
+        objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
     }
 
     public void initialize(MenuBar menuBar) {
@@ -104,9 +90,12 @@ public class MenuBarHandler {
         try {
             FileReader reader = new FileReader(file);
             GroundPlan groundPlan = objectMapper.readValue(reader, GroundPlan.class);
-
+            for(RoomComponent r : groundPlan.components) {
+                r.getWallComponent().roomComponent = r;
+            }
             if(groundPlan != null) {
                 this.engine.addGroundPlan(groundPlan);
+                this.engine.updateConnections();
             }
         } catch (IOException e) {
             e.printStackTrace();

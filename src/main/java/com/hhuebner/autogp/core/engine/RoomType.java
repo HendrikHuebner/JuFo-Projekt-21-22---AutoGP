@@ -28,9 +28,4 @@ public enum RoomType {
         this.defaultFurniture = defaultFurniture;
         this.defaultSize = defaultSize;
     }
-
-    @Override
-    public String toString() {
-        return name;
-    }
 }

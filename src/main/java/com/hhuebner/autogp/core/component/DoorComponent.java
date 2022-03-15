@@ -1,5 +1,8 @@
 package com.hhuebner.autogp.core.component;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.hhuebner.autogp.core.InputHandler;
 import com.hhuebner.autogp.core.engine.BoundingBox;
 import com.hhuebner.autogp.core.util.Direction;
@@ -11,28 +14,25 @@ import javafx.scene.shape.ArcType;
 
 import static com.hhuebner.autogp.core.engine.GPEngine.CELL_SIZE;
 
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 public class DoorComponent extends InteractableComponent {
 
     private final Direction side;
     private final boolean openingLeft;
     private final double clearance;
 
-    private DoorComponent(BoundingBox bb, Direction side, boolean openingLeft, double clearance, String name, long id) {
-        super(bb, name, id);
+    @JsonCreator
+    private DoorComponent(@JsonProperty("boundingBox") BoundingBox boundingBox,
+                          @JsonProperty("side") Direction side,
+                          @JsonProperty("openingLeft") boolean openingLeft,
+                          @JsonProperty("clearance") double clearance,
+                          @JsonProperty("name") String name,
+                          @JsonProperty("id") long id) {
+        super(boundingBox, name, id);
         
         this.side = side;
         this.openingLeft = openingLeft;
         this.clearance = clearance;
-
-        BoundingBox voidBB;
-        double d = 0.8;
-        switch(side) {
-            case NORTH -> voidBB = new BoundingBox(bb.x, bb.y - d, bb.x2, bb.y);
-            case SOUTH -> voidBB = new BoundingBox(bb.x, bb.y2, bb.x2, bb.y2 + d);
-            case WEST -> voidBB = new BoundingBox(bb.x - d, bb.y, bb.x, bb.y2);
-            case EAST -> voidBB = new BoundingBox(bb.x2, bb.y, bb.x2 + d, bb.y2);
-            default -> throw new IllegalStateException("Unexpected value: " + side);
-        }
     }
 
     public static DoorComponent create(RoomComponent component, double start, double end, Direction side, String name, long id) {
@@ -122,5 +122,17 @@ public class DoorComponent extends InteractableComponent {
 
                 scaledR, scaledR, 270, 90, ArcType.ROUND);
         ctx.restore();
+    }
+
+    public Direction getSide() {
+        return side;
+    }
+
+    public double getClearance() {
+        return clearance;
+    }
+
+    public boolean isOpeningLeft() {
+        return openingLeft;
     }
 }

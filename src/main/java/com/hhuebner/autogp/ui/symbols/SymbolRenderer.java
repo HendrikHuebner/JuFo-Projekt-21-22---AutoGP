@@ -1,10 +1,14 @@
 package com.hhuebner.autogp.ui.symbols;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.hhuebner.autogp.core.component.furniture.FurnitureItem;
 import com.hhuebner.autogp.options.OptionsHandler;
 import javafx.scene.canvas.GraphicsContext;
 
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "renderer")
 public abstract class SymbolRenderer {
+
+    public SymbolRenderer() {}
 
     public void render(GraphicsContext ctx, FurnitureItem item, double x, double y, double w, double h) {
         ctx.save();

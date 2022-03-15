@@ -9,7 +9,6 @@ import com.hhuebner.autogp.core.engine.DragMode;
 import com.hhuebner.autogp.core.engine.GPEngine;
 import com.hhuebner.autogp.core.util.Unit;
 import com.hhuebner.autogp.core.util.UnitSq;
-import com.hhuebner.autogp.core.util.Utility;
 import com.hhuebner.autogp.options.OptionsHandler;
 import com.hhuebner.autogp.ui.widgets.GroundPlanTab;
 import javafx.geometry.Point2D;
@@ -59,9 +58,9 @@ public class InputHandler {
         BoundingBox bb = null;
 
         if(this.selectedComponent.isPresent()) {
-            bb = this.selectedComponent.get().getBoundingBox();
+            bb = this.selectedComponent.get().getBB();
         }else if(this.selectedRoom.isPresent()) {
-            bb = this.selectedRoom.get().getBoundingBox();
+            bb = this.selectedRoom.get().getBB();
         }
 
         if(bb != null) {
@@ -112,7 +111,7 @@ public class InputHandler {
     private boolean selectComponentAtPoint(InteractableComponent component, double mouseX, double mouseY) {
         if(this.selectedRoom.isEmpty() && !(component instanceof RoomComponent)) return false;
 
-        if (component.getBoundingBox().containsPoint(mouseX, mouseY)) {
+        if (component.getBB().containsPoint(mouseX, mouseY)) {
             if(component instanceof RoomComponent) {
                 this.selectedComponent = Optional.empty();
 
@@ -160,11 +159,11 @@ public class InputHandler {
             double dy = dyPX / CELL_SIZE / this.globalScale;
 
             switch(dragMode) {
-                case MOVE -> component.getBoundingBox().move(dx, dy);
-                case NORTH -> component.getBoundingBox().y += dy;
-                case SOUTH -> component.getBoundingBox().y2 += dy;
-                case WEST -> component.getBoundingBox().x += dx;
-                case EAST -> component.getBoundingBox().x2 += dx;
+                case MOVE -> component.getBB().move(dx, dy);
+                case NORTH -> component.getBB().y += dy;
+                case SOUTH -> component.getBB().y2 += dy;
+                case WEST -> component.getBB().x += dx;
+                case EAST -> component.getBB().x2 += dx;
             }
 
             engine.updateConnections();

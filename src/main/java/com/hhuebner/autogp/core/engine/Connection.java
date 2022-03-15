@@ -12,8 +12,8 @@ public record Connection(@JsonBackReference RoomComponent roomComponent, Directi
 
 
     public static Connection getConnection(RoomComponent r1, RoomComponent r2) {
-        BoundingBox bb1 = new BoundingBox(r1.getBoundingBox());
-        BoundingBox bb2 = new BoundingBox(r2.getBoundingBox());
+        BoundingBox bb1 = new BoundingBox(r1.getBB());
+        BoundingBox bb2 = new BoundingBox(r2.getBB());
 
         Direction direction = null;
         if (epsEquals(bb1.x, bb2.x2, 0.05)) direction = Direction.WEST;

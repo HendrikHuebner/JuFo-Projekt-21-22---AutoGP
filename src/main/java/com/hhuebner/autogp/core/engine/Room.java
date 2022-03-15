@@ -1,6 +1,9 @@
 package com.hhuebner.autogp.core.engine;
 
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.core.JacksonException;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
@@ -26,14 +29,18 @@ public class Room {
     public String name;
     public RoomType type;
     public double size;
+    public List<FurnitureItem> furniture;
+    public int generationPriority;
 
-    @JsonSerialize(using = Room.RoomSerializer.class)
-    @JsonDeserialize(using = Room.RoomDeserializer.class)
-    public ObservableList<FurnitureItem> furniture;
-    public final int generationPriority;
+    public Room() {}
 
     //DEBUG
-    public Room(String name, RoomType type, double size, List<FurnitureItem> furniture, int generationPriority) {
+    @JsonCreator
+    public Room(@JsonProperty("name") String name,
+                @JsonProperty("type") RoomType type,
+                @JsonProperty("size") double size,
+                @JsonProperty("furniture") List<FurnitureItem> furniture,
+                @JsonProperty("generationPriority") int generationPriority) {
         this.type = type;
         this.size = size;
         this.name = type.name;

@@ -1,13 +1,12 @@
 package com.hhuebner.autogp.core.component;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.hhuebner.autogp.core.InputHandler;
 import com.hhuebner.autogp.core.engine.BoundingBox;
 import com.hhuebner.autogp.core.engine.Connection;
 import com.hhuebner.autogp.core.engine.RoomType;
 import com.hhuebner.autogp.core.util.Direction;
-import com.hhuebner.autogp.core.util.Utility;
 import com.hhuebner.autogp.options.OptionsHandler;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
@@ -19,8 +18,10 @@ import java.util.Map;
 
 import static com.hhuebner.autogp.core.engine.GPEngine.CELL_SIZE;
 
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 public class WallComponent extends PlanComponent {
 
+    @JsonIgnore
     private static Map<RoomType, Color> typeColors = new HashMap<>();
 
     static {
@@ -31,10 +32,17 @@ public class WallComponent extends PlanComponent {
         typeColors.put(RoomType.HALLWAY, Color.LIGHTGREY);
     }
 
-    private final RoomComponent roomComponent;
-    @JsonManagedReference
+    @JsonIgnore
+    public RoomComponent roomComponent;
+    @JsonIgnore
     private List<Connection> connections = new ArrayList<>();
     private List<WallPosition> windows = new ArrayList<>();
+
+
+    public WallComponent() {
+        super("", 0);
+        this.roomComponent = null;
+    }
 
     public WallComponent(RoomComponent component, String name, int id) {
         super(name, id);
@@ -144,7 +152,7 @@ public class WallComponent extends PlanComponent {
 
     private void drawInnerWall(GraphicsContext ctx, RoomComponent component, InputHandler handler) {
         final double INNER_WALL_THICKNESS = OptionsHandler.INSTANCE.innerWallWidth.get();
-        BoundingBox bb = component.getBoundingBox();
+        BoundingBox bb = component.getBB();
 
         double scaledX = ( bb.x + INNER_WALL_THICKNESS) * CELL_SIZE;
         double scaledY = (bb.y + INNER_WALL_THICKNESS) * CELL_SIZE;

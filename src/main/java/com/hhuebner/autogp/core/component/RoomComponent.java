@@ -1,5 +1,6 @@
 package com.hhuebner.autogp.core.component;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.hhuebner.autogp.core.InputHandler;
@@ -11,12 +12,17 @@ import javafx.scene.canvas.GraphicsContext;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 public class RoomComponent extends InteractableComponent {
 
-    public final Room room;
-    private final List<PlanComponent> children = new ArrayList<>();
+    public Room room;
+    public List<PlanComponent> children = new ArrayList<>();
 
+    public RoomComponent() {
+        super(null, null, 0);
+    }
 
     public RoomComponent(Room room, BoundingBox bb, long id) {
         super(bb, room.name, id);
@@ -24,12 +30,13 @@ public class RoomComponent extends InteractableComponent {
     }
 
     @Override
-    public void render(GraphicsContext ctx, InputHandler inputHandler) {
+    public  void render(GraphicsContext ctx, InputHandler inputHandler) {
         for(PlanComponent component : this.children) {
             component.render(ctx, inputHandler);
         }
     }
 
+    @JsonIgnore
     public List<AnchorPoint> getAnchors(List<RoomComponent> graph) {
         List<AnchorPoint> list = new ArrayList<>();
 
@@ -51,7 +58,7 @@ public class RoomComponent extends InteractableComponent {
         return this.children;
     }
 
-
+    @JsonIgnore
     public WallComponent getWallComponent() {
         for(PlanComponent c : children) {
             if(c instanceof  WallComponent)

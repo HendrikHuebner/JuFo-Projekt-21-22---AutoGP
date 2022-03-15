@@ -1,5 +1,6 @@
 package com.hhuebner.autogp.core.component;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.hhuebner.autogp.core.InputHandler;
 import com.hhuebner.autogp.core.engine.BoundingBox;
 import com.hhuebner.autogp.core.engine.DragMode;
@@ -29,7 +30,11 @@ public abstract class InteractableComponent extends PlanComponent {
         }
     }
 
-    public BoundingBox getBoundingBox() {
+    /**
+     *
+     * @return BoundingBox
+     */
+    public BoundingBox getBB() {
         return this.bb;
     }
 
@@ -66,12 +71,14 @@ public abstract class InteractableComponent extends PlanComponent {
         ctx.restore();
     }
 
+    @JsonIgnore
     public String getDescription(InputHandler handler) {
         return String.format("Objektname: %s  Breite: %.2f%s  Höhe %.2f%s", this.name,
                 Utility.convertUnit(bb.getWidth(), Unit.METRES, handler.displayUnit), handler.displayUnit,
                 Utility.convertUnit(bb.getHeight(), Unit.METRES, handler.displayUnit), handler.displayUnit);
     }
 
+    @JsonIgnore
     public boolean isClickable() {
         return true;
     }

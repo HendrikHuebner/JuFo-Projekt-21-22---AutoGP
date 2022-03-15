@@ -30,7 +30,6 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.transform.Affine;
 import javafx.scene.transform.NonInvertibleTransformException;
-import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -151,7 +150,7 @@ public class MainSceneController {
         long start = System.currentTimeMillis();
         int tries = 0;
         long seed = 0;
-        int id = this.groundPlanId++;
+        int id = this.getNextGPID();
 
         this.engine.calculateRoomSizes(inputHandler.gpSize, inputHandler.gpSizeUnit);
 
@@ -288,7 +287,7 @@ public class MainSceneController {
     }
 
     public void onSelectRoom(RoomComponent component) {
-        this.furnitureOverviewTable.setItems(component.room.furniture);
+        this.furnitureOverviewTable.setItems((ObservableList<FurnitureItem>) component.room.furniture);
         this.tableScrollPane.setContent(this.furnitureOverviewTable);
     }
 
@@ -297,8 +296,12 @@ public class MainSceneController {
     }
 
     public void addGroundPlanTab(GroundPlan groundPlan) {
-        Tab tab = new GroundPlanTab(groundPlan.getID(), "Grundriss Nr. " + groundPlan.getID(), this.inputHandler);
+        Tab tab = new GroundPlanTab(groundPlan.getGroundPlanID(), "Grundriss Nr. " + groundPlan.getGroundPlanID(), this.inputHandler);
         tabPane.getTabs().add(tab);
         tabPane.getSelectionModel().select(tab);
+    }
+
+    public int getNextGPID() {
+        return ++this.groundPlanId;
     }
 }

@@ -1,5 +1,6 @@
 package com.hhuebner.autogp.core.engine;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.hhuebner.autogp.core.util.Direction;
 import com.hhuebner.autogp.options.OptionsHandler;
 
@@ -11,6 +12,8 @@ public class BoundingBox {
     public double y;
     public double x2;
     public double y2;
+
+    public BoundingBox() {}
 
     public BoundingBox(double x, double y, double x2, double y2) {
         this.x = x;
@@ -93,10 +96,12 @@ public class BoundingBox {
         }
     }
 
+    @JsonIgnore
     public double getWidth() {
         return this.x2 - this.x;
     }
 
+    @JsonIgnore
     public double getHeight() {
         return this.y2 - this.y;
     }

@@ -1,5 +1,7 @@
 package com.hhuebner.autogp.core.component;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.hhuebner.autogp.core.InputHandler;
 import com.hhuebner.autogp.core.component.furniture.FurnitureItem;
 import com.hhuebner.autogp.core.engine.BoundingBox;
@@ -13,13 +15,14 @@ import java.util.List;
 
 import static com.hhuebner.autogp.core.engine.GPEngine.CELL_SIZE;
 
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 public class FurnitureComponent extends InteractableComponent {
 
     private final FurnitureItem item;
     private final Direction facing;
-    private boolean isValid = false; //unused. Indicates that this FC is in a correct position
 
-    public FurnitureComponent(BoundingBox bb, Direction facing, FurnitureItem item, long id) {
+    public FurnitureComponent(@JsonProperty("bb") BoundingBox bb, @JsonProperty("facing") Direction facing,
+                              @JsonProperty("item") FurnitureItem item, @JsonProperty("id") long id) {
         super(bb, item.getName(), id);
         this.item = item;
         this.facing = facing;
@@ -62,11 +65,11 @@ public class FurnitureComponent extends InteractableComponent {
         ctx.restore();
     }
 
-    public boolean validate(List<RoomComponent> components) {
-        return isValid;
+    public FurnitureItem getItem() {
+        return this.item;
     }
 
-    public boolean isValid() {
-        return isValid;
+    public Direction getFacing() {
+        return facing;
     }
 }

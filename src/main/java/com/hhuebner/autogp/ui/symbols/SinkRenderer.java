@@ -1,8 +1,10 @@
 package com.hhuebner.autogp.ui.symbols;
 
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.shape.ArcType;
 
+@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS)
 public class SinkRenderer extends SymbolRenderer {
 
     @Override

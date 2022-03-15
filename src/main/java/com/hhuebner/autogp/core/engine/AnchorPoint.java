@@ -32,14 +32,14 @@ public class AnchorPoint {
 
     private boolean calcNeighbors(List<RoomComponent> graph) {
         final double margin = 0.01;
-        double s = directionFacing.isHorizontal() ? room.getBoundingBox().getWidth() : room.getBoundingBox().getHeight();
+        double s = directionFacing.isHorizontal() ? room.getBB().getWidth() : room.getBB().getHeight();
         double lx = this.getX() - this.directionFacing.dx * margin;
         double ly = this.getY() - this.directionFacing.dy * margin;
         double rx = lx + this.directionFacing.dx * (s + margin);
         double ry = ly + this.directionFacing.dy * (s + margin);
 
         for(RoomComponent r : graph) {
-            BoundingBox bb = r.getBoundingBox();
+            BoundingBox bb = r.getBB();
             if(bb.containsPoint(lx + (this.side.dx + 2 * this.directionFacing.dx) * margin, ly + (this.side.dy + 2 * this.directionFacing.dy) * margin)) {
                 return true;
             } else if(bb.containsPoint(lx + this.side.dx * margin, ly + this.side.dy * margin)) {
@@ -57,10 +57,10 @@ public class AnchorPoint {
     }
 
     public double getX() {
-        return room.getBoundingBox().x + ((side.dx + directionFacing.getOpposite().dx > 0) ? room.getBoundingBox().getWidth() : 0);
+        return room.getBB().x + ((side.dx + directionFacing.getOpposite().dx > 0) ? room.getBB().getWidth() : 0);
     }
 
     public double getY() {
-        return room.getBoundingBox().y + ((side.dy + directionFacing.getOpposite().dy > 0) ? room.getBoundingBox().getHeight() : 0);
+        return room.getBB().y + ((side.dy + directionFacing.getOpposite().dy > 0) ? room.getBB().getHeight() : 0);
     }
 }
