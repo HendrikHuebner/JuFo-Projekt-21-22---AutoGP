@@ -17,8 +17,9 @@ public class FurnitureItems {
     public static final FurnitureItem DINING_TABLE = new FurnitureItem("Esstisch", 1.90, 1.20, new TableRenderer());
     public static final FurnitureItem CABINET = new FurnitureItem("Schrank", 1.0, 0.60, new CabinetRenderer());
     public static final FurnitureItem COUCH = new FurnitureItem("Sofa", 1.95, 0.8, new CouchRenderer());
+    public static final FurnitureItem STOVE = new FurnitureItem("Herd", 0.8, 0.8, new StoveRenderer());
 
     public static List<FurnitureItem> getItems() {
-        return List.of(TOILET, BATH_TUB, SINK, SHOWER, ARMCHAIR, SINK, DOUBLE_BED, DINING_TABLE, CABINET, COUCH);
+        return List.of(TOILET, BATH_TUB, SINK, SHOWER, ARMCHAIR, SINK, DOUBLE_BED, DINING_TABLE, CABINET, COUCH, STOVE);
     }
 }

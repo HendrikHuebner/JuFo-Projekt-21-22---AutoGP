@@ -230,7 +230,7 @@ public class MainSceneController {
         Point2D mouse = this.cam.getTransform().inverseTransform(event.getX(), event.getY());
 
         if (this.inputHandler.getTool() == InputHandler.Tool.CURSOR) {
-            inputHandler.onCursorClick(mouse.getX(), mouse.getY());
+            inputHandler.onCursorPress(mouse.getX(), mouse.getY());
 
             //update information bar
             if(inputHandler.selectedRoom.isPresent()) {
@@ -282,7 +282,7 @@ public class MainSceneController {
 
         Affine affine = this.cam.getTransform();
         affine.prependTranslation(-event.getX(), -event.getY());
-        affine.prependScale(multiplier, multiplier);
+        affine.prependScale(multiplier,  multiplier);
         affine.prependTranslation(event.getX(), event.getY());
     }
 

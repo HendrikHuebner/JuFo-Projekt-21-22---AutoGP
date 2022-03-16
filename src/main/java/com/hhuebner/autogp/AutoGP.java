@@ -27,7 +27,7 @@ public class AutoGP extends Application {
     public void start(Stage stage) throws IOException {
         Camera camera = new Camera();
         GPEngine engine = new GPEngine(() -> AutoGP.this.mainLoader.getController());
-        InputHandler inputHandler = new InputHandler(() -> AutoGP.this.mainLoader.getController(), engine);
+        InputHandler inputHandler = new InputHandler(() -> AutoGP.this.mainLoader.getController(), engine, camera);
         MenuBarHandler menuBarHandler = new MenuBarHandler(stage, engine);
 
         //main scene

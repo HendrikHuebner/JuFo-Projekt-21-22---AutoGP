@@ -67,6 +67,7 @@ public class MenuBarHandler {
 
     private void openSaveDialogue() {
         FileChooser fileChooser = new FileChooser();
+        fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("JSON file (*.json)", "*.json"));
         fileChooser.setTitle("Grundriss Speichern");
         File file = fileChooser.showSaveDialog(this.stage);
 

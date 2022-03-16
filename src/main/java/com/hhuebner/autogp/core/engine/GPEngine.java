@@ -260,7 +260,7 @@ public class GPEngine {
         }
 
         for(RoomComponent roomComponent : gp.components) {
-            roomComponent.getWallComponent().getConnections().sort(Comparator.comparingDouble(c -> c.start()));
+            roomComponent.getWallComponent().getConnections().sort(Comparator.comparingDouble(Connection::start));
         }
 
         if(OptionsHandler.INSTANCE.generateFurniture.get()) {
@@ -270,6 +270,7 @@ public class GPEngine {
         return gp; //yay
     }
 
+    /*
     private void generateWindows(GroundPlan gp, Random rand, ListMultimap<RoomComponent, Connection> connections) {
         final double windowHeight = OptionsHandler.INSTANCE.windowHeight.get();
         final double wallWidth = OptionsHandler.INSTANCE.innerWallWidth.get();
@@ -287,7 +288,7 @@ public class GPEngine {
             if(freeSides.size() == 0) return;
 
         }
-    }
+    }*/
 
     private void generateFurniture(GroundPlan gp, Random rand) {
         final int furnitureSpawnTries = OptionsHandler.INSTANCE.furnitureSpawnTries.get();

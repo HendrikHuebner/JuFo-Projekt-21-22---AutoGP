@@ -180,6 +180,10 @@ public class WallComponent extends PlanComponent {
         double scaledY = y * CELL_SIZE;
         double scaledX2 = x2 * CELL_SIZE;
         double scaledY2 = y2 * CELL_SIZE;
+
+        //TODO: Replace quick fix for random "spots" on corners
+        if(Math.pow(scaledX2 - scaledX, 2) + Math.pow(scaledY2 - scaledY, 2) < 20) return;
+
         ctx.strokeLine(scaledX, scaledY, scaledX2, scaledY2);
     }
 

@@ -10,6 +10,7 @@ import com.hhuebner.autogp.core.engine.GPEngine;
 import com.hhuebner.autogp.core.util.Unit;
 import com.hhuebner.autogp.core.util.UnitSq;
 import com.hhuebner.autogp.options.OptionsHandler;
+import com.hhuebner.autogp.ui.Camera;
 import com.hhuebner.autogp.ui.widgets.GroundPlanTab;
 import javafx.geometry.Point2D;
 
@@ -22,6 +23,8 @@ public class InputHandler {
 
     private final GPEngine engine;
     private final Supplier<MainSceneController> scene;
+    private final Camera camera;
+
     public Optional<Point2D> dragStart = Optional.empty();
     public Optional<Point2D> dragEnd = Optional.empty();
     public Unit displayUnit = Unit.METRES;
@@ -36,9 +39,10 @@ public class InputHandler {
     private Optional<DragMode> selectedDragMode = Optional.empty();
 
 
-    public InputHandler(Supplier<MainSceneController> scene, GPEngine engine) {
+    public InputHandler(Supplier<MainSceneController> scene, GPEngine engine, Camera camera) {
         this.scene = scene;
         this.engine = engine;
+        this.camera = camera;
     }
 
     public void setTool(Tool tool) {
@@ -53,7 +57,7 @@ public class InputHandler {
 
     // ***** Cursor tool *****
 
-    public void onCursorClick(double mouseXAbsolute, double mouseYAbsolute) {
+    public void onCursorPress(double mouseXAbsolute, double mouseYAbsolute) {
         //Check if a resize box has been clicked
         BoundingBox bb = null;
 
@@ -64,7 +68,10 @@ public class InputHandler {
         }
 
         if(bb != null) {
-            final double o = 12; //half of the side length of the clickable box
+            final double ox = 12 / this.camera.getScaleX(); //half of the side length of the clickable box
+            final double oy = 12 / this.camera.getScaleY(); //half of the side length of the clickable box
+
+            System.out.println(this.camera.getScaleY());
 
             double x = bb.x * CELL_SIZE;
             double x2 = bb.x2 * CELL_SIZE;
@@ -73,16 +80,16 @@ public class InputHandler {
             double w = (x2 - x) / 2; //half width of bb
             double h = (y2 - y) / 2; //half height of bb
 
-            if(new BoundingBox(x + w - o, y - o, x + w + o, y + o)
+            if(new BoundingBox(x + w - ox, y - oy, x + w + ox, y + oy)
                     .containsPoint(mouseXAbsolute, mouseYAbsolute)) {
                 this.selectedDragMode = Optional.of(DragMode.NORTH); return;
-            } else if(new BoundingBox(x + w - o, y2 - o, x + w + o, y2 + o)
+            } else if(new BoundingBox(x + w - ox, y2 - oy, x + w + ox, y2 + oy)
                     .containsPoint(mouseXAbsolute, mouseYAbsolute)) {
                 this.selectedDragMode = Optional.of(DragMode.SOUTH); return;
-            } else if(new BoundingBox(x - o, y + h - o, x + o, y + h + o)
+            } else if(new BoundingBox(x - ox, y + h - oy, x + ox, y + h + oy)
                     .containsPoint(mouseXAbsolute, mouseYAbsolute)) {
                 this.selectedDragMode = Optional.of(DragMode.WEST); return;
-            } else if(new BoundingBox(x2 - o, y + h - o, x2 + o, y + h + o)
+            } else if(new BoundingBox(x2 - ox, y + h - oy, x2 + ox, y + h + oy)
                     .containsPoint(mouseXAbsolute, mouseYAbsolute)) {
                 this.selectedDragMode = Optional.of(DragMode.EAST); return;
             }
@@ -92,10 +99,12 @@ public class InputHandler {
         double mouseY = mouseYAbsolute / GPEngine.CELL_SIZE;
 
         if(this.selectedRoom.isEmpty()) {
+            //select room
             for(RoomComponent roomComponent : this.engine.getSelectedGP().components) {
                 if (selectComponentAtPoint(roomComponent, mouseX, mouseY)) return;
             }
         } else {
+            //first, try to select components within the room
             RoomComponent roomComponent = this.selectedRoom.get();
             for(PlanComponent component : roomComponent.getChildren()) {
                 if(component instanceof InteractableComponent) {
@@ -104,19 +113,29 @@ public class InputHandler {
                 }
             }
 
+            //check if the click was even inside the room (important for moving)
+            if(selectComponentAtPoint(roomComponent, mouseX, mouseY)) return;
+
+            //check remaining rooms
+            for(RoomComponent r : this.engine.getSelectedGP().components) {
+                if (selectComponentAtPoint(r, mouseX, mouseY)) return;
+            }
+
             this.clearSelectedComponent();
         }
     }
 
-    private boolean selectComponentAtPoint(InteractableComponent component, double mouseX, double mouseY) {
-        if(this.selectedRoom.isEmpty() && !(component instanceof RoomComponent)) return false;
+    public void onCursorRealease(double mouseXAbsolute, double mouseYAbsolute) {
 
+    }
+
+    private boolean selectComponentAtPoint(InteractableComponent component, double mouseX, double mouseY) {
         if (component.getBB().containsPoint(mouseX, mouseY)) {
             if(component instanceof RoomComponent) {
                 this.selectedComponent = Optional.empty();
 
                 if (this.selectedRoom.isPresent() && this.selectedRoom.get().equals(component)) {
-                    //deselect & move
+                    //move
                     this.selectedDragMode = Optional.of(DragMode.MOVE);
 
                 } else {
@@ -128,7 +147,6 @@ public class InputHandler {
                 //room must be selected already
                 if (this.selectedComponent.isPresent() && this.selectedComponent.get().equals(component)) {
                     this.selectedDragMode = Optional.of(DragMode.MOVE);
-                    return false;
                 } else {
                     this.selectedComponent = Optional.of(component);
                 }
