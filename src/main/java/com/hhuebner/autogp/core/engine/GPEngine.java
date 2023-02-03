@@ -167,10 +167,9 @@ public class GPEngine {
             toConnect.remove(optStart.get());
             hallways.remove(optStart.get());
 
-            boolean found = true;
+            boolean found = false;
 
-            while(found) {
-                found = false;
+            while(!found) {
                 for(int i = 0; i < connected.size(); i++) {
                     RoomComponent h = connected.get(i);
                     for(Connection c : connections.get(h)) {
