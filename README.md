@@ -1,4 +1,4 @@
-# AutoGP
+# JuFo Projekt 21/22 - AutoGP
 
 My project for the annual "Jugend Forscht" competition written in JavaFX. 
 Automatically generates a simple architectural ground plans based on user input. 
