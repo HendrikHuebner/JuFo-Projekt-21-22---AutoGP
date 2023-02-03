@@ -13,8 +13,6 @@ public class BoundingBox {
     public double x2;
     public double y2;
 
-    public BoundingBox() {}
-
     public BoundingBox(double x, double y, double x2, double y2) {
         this.x = x;
         this.y = y;
